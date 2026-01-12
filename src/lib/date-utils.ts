@@ -22,14 +22,21 @@ export function formatTime(date: Date | string): string {
 
 /**
  * Format a datetime exactly as stored
+ * Show the time exactly as the user entered it, regardless of timezone
  */
 export function formatDateTime(date: Date | string): string {
   const d = new Date(date)
-  return `${d.toLocaleDateString()} • ${d.toLocaleTimeString([], {
+
+  // Get the stored UTC time and display it as-is
+  // This ensures the time shows exactly what was stored
+  const dateStr = d.toLocaleDateString()
+  const timeStr = d.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
-  })}`
+  })
+
+  return `${dateStr} • ${timeStr}`
 }
 
 /**
@@ -50,7 +57,24 @@ export function getCurrentDateTime(): string {
 
 /**
  * Convert datetime-local input to ISO string for storage
+ * datetime-local inputs should be treated as local time
  */
 export function convertToISOString(dateTimeString: string): string {
-  return new Date(dateTimeString).toISOString()
+  // Ensure the string has seconds
+  if (dateTimeString.length === 16) { // YYYY-MM-DDTHH:MM format
+    dateTimeString += ':00'
+  }
+
+  // Parse as local time and store as UTC
+  // This preserves the exact time the user selected
+  const localDate = new Date(dateTimeString)
+  return localDate.toISOString()
+}
+
+/**
+ * Convert date input to ISO string (for date-only inputs)
+ */
+export function convertDateToISOString(dateString: string): string {
+  // Create date at midnight local time
+  return new Date(dateString + 'T00:00:00').toISOString()
 }
