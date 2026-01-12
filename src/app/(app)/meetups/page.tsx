@@ -7,6 +7,7 @@ import { supabase } from "@/utils/supabase"
 import { MeetupForm } from "@/components/forms/meetup-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
+import { formatDateTime } from "@/lib/date-utils"
 
 interface Meetup {
   id: string
@@ -269,7 +270,7 @@ export default function MeetupsPage() {
                 <div className="flex items-center text-gray-600 text-sm mb-1">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span>
-                    {new Date(new Date(meetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleDateString()} • {new Date(new Date(meetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} (GMT+8)
+                    {formatDateTime(meetup.date_time)}
                   </span>
                 </div>
                 {meetup.location && (

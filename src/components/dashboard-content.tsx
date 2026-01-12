@@ -8,6 +8,7 @@ import { MeetupForm } from "@/components/forms/meetup-form"
 import { TripForm } from "@/components/forms/trip-form"
 import { TimeAwayForm } from "@/components/forms/time-away-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
   const { currentUser } = useUser()
@@ -322,7 +323,7 @@ export function DashboardContent() {
                 <div className="flex items-center text-gray-600 mt-1">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span className="text-sm">
-                    {new Date(new Date(nextMeetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleDateString()} • {new Date(new Date(nextMeetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} (GMT+8)
+                    {formatDateTime(nextMeetup.date_time)}
                   </span>
                 </div>
                 {nextMeetup.location && (
@@ -350,7 +351,7 @@ export function DashboardContent() {
               <div key={meetup.id} className="bg-white border border-gray-200 rounded-lg p-3">
                 <h3 className="font-medium text-gray-900">{meetup.title}</h3>
                 <p className="text-sm text-gray-600">
-                  {new Date(new Date(meetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleDateString()} • {new Date(new Date(meetup.date_time).getTime() + (8 * 60 * 60 * 1000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} (GMT+8)
+                  {formatDateTime(meetup.date_time)}
                 </p>
                 {meetup.location && (
                   <p className="text-sm text-gray-600">{meetup.location}</p>

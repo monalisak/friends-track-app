@@ -61,7 +61,6 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
             required
           />
-          <p className="text-xs text-gray-500 mt-1">Dates are in GMT+8 timezone</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -74,7 +73,6 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             min={formData.startDate}
             required
           />
-          <p className="text-xs text-gray-500 mt-1">Dates are in GMT+8 timezone</p>
         </div>
       </div>
 

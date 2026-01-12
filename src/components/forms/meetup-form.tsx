@@ -56,7 +56,7 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Date & Time * <span className="text-xs text-gray-500">(GMT+8)</span>
+          Date & Time *
         </label>
         <Input
           type="datetime-local"
@@ -64,9 +64,6 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
           onChange={(e) => setFormData(prev => ({ ...prev, dateTime: e.target.value }))}
           required
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Enter times in GMT+8 timezone
-        </p>
       </div>
 
       <div>

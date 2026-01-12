@@ -1,27 +1,19 @@
-// Date utilities for GMT+8 timezone handling
+// Simple date utilities - display time exactly as entered
 
 /**
- * Format a date in GMT+8 timezone
+ * Format a date exactly as stored
  */
-export function formatDateInGMT8(date: Date | string): string {
+export function formatDate(date: Date | string): string {
   const d = new Date(date)
-
-  // Convert to GMT+8
-  const gmt8Time = new Date(d.getTime() + (8 * 60 * 60 * 1000))
-
-  return gmt8Time.toLocaleDateString()
+  return d.toLocaleDateString()
 }
 
 /**
- * Format a time in GMT+8 timezone
+ * Format a time exactly as stored
  */
-export function formatTimeInGMT8(date: Date | string): string {
+export function formatTime(date: Date | string): string {
   const d = new Date(date)
-
-  // Convert to GMT+8
-  const gmt8Time = new Date(d.getTime() + (8 * 60 * 60 * 1000))
-
-  return gmt8Time.toLocaleTimeString([], {
+  return d.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
@@ -29,45 +21,36 @@ export function formatTimeInGMT8(date: Date | string): string {
 }
 
 /**
- * Format a datetime in GMT+8 timezone
+ * Format a datetime exactly as stored
  */
-export function formatDateTimeInGMT8(date: Date | string): string {
+export function formatDateTime(date: Date | string): string {
   const d = new Date(date)
-
-  // Convert to GMT+8
-  const gmt8Time = new Date(d.getTime() + (8 * 60 * 60 * 1000))
-
-  return `${gmt8Time.toLocaleDateString()} • ${gmt8Time.toLocaleTimeString([], {
+  return `${d.toLocaleDateString()} • ${d.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
-  })} (GMT+8)`
+  })}`
 }
 
 /**
- * Get current date/time in GMT+8 as ISO string for input fields
+ * Get current date/time for input fields
  */
-export function getCurrentDateTimeInGMT8(): string {
+export function getCurrentDateTime(): string {
   const now = new Date()
-  const gmt8Time = new Date(now.getTime() + (8 * 60 * 60 * 1000))
 
   // Format for datetime-local input (YYYY-MM-DDTHH:MM)
-  const year = gmt8Time.getFullYear()
-  const month = String(gmt8Time.getMonth() + 1).padStart(2, '0')
-  const day = String(gmt8Time.getDate()).padStart(2, '0')
-  const hours = String(gmt8Time.getHours()).padStart(2, '0')
-  const minutes = String(gmt8Time.getMinutes()).padStart(2, '0')
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
 
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
 /**
- * Convert a datetime-local input value to GMT+8 for storage
+ * Convert datetime-local input to ISO string for storage
  */
-export function convertToGMT8ISOString(dateTimeString: string): string {
-  // Parse the input as if it's in GMT+8
-  const localDate = new Date(dateTimeString)
-  // Since the input is interpreted as local time, we need to adjust it to be GMT+8
-  const gmt8Date = new Date(localDate.getTime() - (8 * 60 * 60 * 1000))
-  return gmt8Date.toISOString()
+export function convertToISOString(dateTimeString: string): string {
+  return new Date(dateTimeString).toISOString()
 }

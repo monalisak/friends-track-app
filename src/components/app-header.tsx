@@ -29,7 +29,6 @@ export function AppHeader() {
           </div>
           <div>
             <p className="text-sm font-medium">You: {currentUser.name}</p>
-            <p className="text-xs text-gray-500">GMT+8 timezone</p>
           </div>
         </div>
 
