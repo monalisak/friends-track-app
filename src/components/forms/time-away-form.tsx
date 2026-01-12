@@ -49,7 +49,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
   ] as const
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 px-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -60,6 +60,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             value={formData.startDate}
             onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
             required
+            className="h-11"
           />
         </div>
         <div>
@@ -72,6 +73,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             min={formData.startDate}
             required
+            className="h-11"
           />
         </div>
       </div>
@@ -86,7 +88,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             setFormData(prev => ({ ...prev, type: value }))
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -104,7 +106,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
           Notes
         </label>
         <textarea
-          className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
           placeholder="Any additional details..."
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
@@ -112,19 +114,19 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
         />
       </div>
 
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-3 pt-6">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1"
+          className="flex-1 h-11"
           disabled={loading}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="flex-1"
+          className="flex-1 h-11"
           disabled={loading || !formData.startDate || !formData.endDate}
         >
           {loading ? 'Adding...' : 'Add Time Away'}

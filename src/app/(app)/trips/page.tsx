@@ -184,11 +184,13 @@ export default function TripsPage() {
               <Plus className="w-5 h-5" />
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[90vh]">
-            <SheetHeader>
-              <SheetTitle>Create Trip</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
+          <SheetContent side="bottom" className="h-[90vh] p-0">
+            <div className="p-6 pb-0">
+              <SheetHeader>
+                <SheetTitle>Create Trip</SheetTitle>
+              </SheetHeader>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
               <TripForm
                 onSubmit={handleCreateTrip}
                 onCancel={() => setShowCreateForm(false)}

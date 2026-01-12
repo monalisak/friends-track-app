@@ -269,11 +269,13 @@ export function DashboardContent() {
 
       {/* Meetup Form Sheet */}
       <Sheet open={showMeetupForm} onOpenChange={setShowMeetupForm}>
-        <SheetContent side="bottom" className="h-[90vh]">
-          <SheetHeader>
-            <SheetTitle>Create Meetup</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Create Meetup</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             <MeetupForm
               onSubmit={handleCreateMeetup}
               onCancel={() => setShowMeetupForm(false)}
@@ -284,11 +286,13 @@ export function DashboardContent() {
 
       {/* Trip Form Sheet */}
       <Sheet open={showTripForm} onOpenChange={setShowTripForm}>
-        <SheetContent side="bottom" className="h-[90vh]">
-          <SheetHeader>
-            <SheetTitle>Create Trip</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Create Trip</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             <TripForm
               onSubmit={handleCreateTrip}
               onCancel={() => setShowTripForm(false)}
@@ -299,11 +303,13 @@ export function DashboardContent() {
 
       {/* Time Away Form Sheet */}
       <Sheet open={showTimeAwayForm} onOpenChange={setShowTimeAwayForm}>
-        <SheetContent side="bottom" className="h-[90vh]">
-          <SheetHeader>
-            <SheetTitle>Add Time Away</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Add Time Away</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             <TimeAwayForm
               onSubmit={handleCreateTimeAway}
               onCancel={() => setShowTimeAwayForm(false)}

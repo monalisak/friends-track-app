@@ -42,7 +42,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 px-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Trip Title *
@@ -53,6 +53,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
           value={formData.title}
           onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
           required
+          className="h-11"
         />
       </div>
 
@@ -66,6 +67,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
             value={formData.startDate}
             onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
             required
+            className="h-11"
           />
         </div>
         <div>
@@ -78,6 +80,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
             onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             min={formData.startDate}
             required
+            className="h-11"
           />
         </div>
       </div>
@@ -93,7 +96,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
             placeholder="e.g., Niseko, Japan"
             value={formData.location}
             onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-            className="pl-10"
+            className="pl-10 h-11"
           />
         </div>
       </div>
@@ -103,7 +106,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
           Notes
         </label>
         <textarea
-          className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
           placeholder="Any additional details..."
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
@@ -111,19 +114,19 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
         />
       </div>
 
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-3 pt-6">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1"
+          className="flex-1 h-11"
           disabled={loading}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="flex-1"
+          className="flex-1 h-11"
           disabled={loading || !formData.title || !formData.startDate || !formData.endDate}
         >
           {loading ? 'Creating...' : 'Create Trip'}
