@@ -1,0 +1,89 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Check, Clock, X } from "lucide-react"
+
+interface RsvpButtonsProps {
+  currentRsvp?: {
+    status: 'going' | 'maybe' | 'cant'
+    comment?: string
+  } | null
+  onRsvp: (status: 'going' | 'maybe' | 'cant', comment?: string) => void
+}
+
+export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
+  const [selectedStatus, setSelectedStatus] = useState<'going' | 'maybe' | 'cant' | null>(
+    currentRsvp?.status || null
+  )
+  const [comment, setComment] = useState(currentRsvp?.comment || '')
+
+  const handleRsvp = (status: 'going' | 'maybe' | 'cant') => {
+    setSelectedStatus(status)
+    onRsvp(status, comment || undefined)
+  }
+
+  const rsvpOptions = [
+    {
+      status: 'going' as const,
+      label: 'Going',
+      icon: Check,
+      color: 'bg-green-600 hover:bg-green-700 text-white',
+      selectedColor: 'bg-green-100 border-green-500 text-green-700',
+    },
+    {
+      status: 'maybe' as const,
+      label: 'Maybe',
+      icon: Clock,
+      color: 'bg-blue-600 hover:bg-blue-700 text-white',
+      selectedColor: 'bg-blue-100 border-blue-500 text-blue-700',
+    },
+    {
+      status: 'cant' as const,
+      label: 'Can\'t',
+      icon: X,
+      color: 'bg-red-600 hover:bg-red-700 text-white',
+      selectedColor: 'bg-red-100 border-red-500 text-red-700',
+    },
+  ]
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        {rsvpOptions.map(({ status, label, icon: Icon, color, selectedColor }) => (
+          <button
+            key={status}
+            onClick={() => handleRsvp(status)}
+            className={`flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedStatus === status
+                ? selectedColor
+                : `${color} text-white`
+            }`}
+          >
+            <Icon className="w-4 h-4 mr-1" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Comment field - only show if user has RSVP'd */}
+      {selectedStatus && (
+        <div>
+          <textarea
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            placeholder="Add a comment (optional)..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+            onBlur={() => {
+              // Update comment when user finishes typing
+              if (selectedStatus) {
+                onRsvp(selectedStatus, comment || undefined)
+              }
+            }}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
