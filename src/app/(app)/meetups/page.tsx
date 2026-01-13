@@ -19,7 +19,6 @@ interface Meetup {
   rsvps: Array<{
     member_id: string
     status: 'going' | 'maybe' | 'cant'
-    comment?: string
   }>
 }
 
@@ -104,7 +103,7 @@ export default function MeetupsPage() {
     return member?.name || 'Unknown'
   }
 
-  const handleRsvpUpdate = async (meetupId: string, status: 'going' | 'maybe' | 'cant', comment?: string) => {
+  const handleRsvpUpdate = async (meetupId: string, status: 'going' | 'maybe' | 'cant') => {
     if (!currentUser) return
 
     try {
@@ -114,7 +113,6 @@ export default function MeetupsPage() {
           meetup_id: meetupId,
           member_id: currentUser.id,
           status,
-          comment: comment || null,
         })
 
       if (error) {
@@ -302,7 +300,7 @@ export default function MeetupsPage() {
                 {currentUser && (
                   <RsvpButtons
                     currentRsvp={userRsvp}
-                    onRsvp={(status, comment) => handleRsvpUpdate(meetup.id, status, comment)}
+                    onRsvp={(status) => handleRsvpUpdate(meetup.id, status)}
                   />
                 )}
               </div>

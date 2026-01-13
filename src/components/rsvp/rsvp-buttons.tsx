@@ -7,20 +7,18 @@ import { Check, Clock, X } from "lucide-react"
 interface RsvpButtonsProps {
   currentRsvp?: {
     status: 'going' | 'maybe' | 'cant'
-    comment?: string
   } | null
-  onRsvp: (status: 'going' | 'maybe' | 'cant', comment?: string) => void
+  onRsvp: (status: 'going' | 'maybe' | 'cant') => void
 }
 
 export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
   const [selectedStatus, setSelectedStatus] = useState<'going' | 'maybe' | 'cant' | null>(
     currentRsvp?.status || null
   )
-  const [comment, setComment] = useState(currentRsvp?.comment || '')
 
   const handleRsvp = (status: 'going' | 'maybe' | 'cant') => {
     setSelectedStatus(status)
-    onRsvp(status, comment || undefined)
+    onRsvp(status)
   }
 
   const rsvpOptions = [
@@ -65,25 +63,6 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
           </button>
         ))}
       </div>
-
-      {/* Comment field - only show if user has RSVP'd */}
-      {selectedStatus && (
-        <div>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            placeholder="Add a comment (optional)..."
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            rows={2}
-            onBlur={() => {
-              // Update comment when user finishes typing
-              if (selectedStatus) {
-                onRsvp(selectedStatus, comment || undefined)
-              }
-            }}
-          />
-        </div>
-      )}
     </div>
   )
 }

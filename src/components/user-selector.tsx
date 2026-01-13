@@ -19,7 +19,7 @@ export function UserSelector() {
           <div className="mx-auto mb-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
             <Users className="w-6 h-6 text-blue-600" />
           </div>
-          <CardTitle>Welcome to Mona's Friends Tracker</CardTitle>
+          <CardTitle>Welcome to Friend Track</CardTitle>
           <CardDescription>
             Select your name to get started
           </CardDescription>

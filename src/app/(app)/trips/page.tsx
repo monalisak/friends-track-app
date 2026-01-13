@@ -20,7 +20,6 @@ interface Trip {
     id: string
     member_id: string
     status: 'going' | 'maybe' | 'cant'
-    comment?: string
   }>
 }
 
@@ -102,7 +101,7 @@ export default function TripsPage() {
     return member?.color || '#6b7280'
   }
 
-  const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant', comment?: string) => {
+  const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant') => {
     if (!currentUser) return
 
     try {
@@ -112,7 +111,6 @@ export default function TripsPage() {
           trip_id: tripId,
           member_id: currentUser.id,
           status,
-          comment: comment || null,
         })
 
       if (error) {
@@ -268,45 +266,8 @@ export default function TripsPage() {
                 {currentUser && (
                   <RsvpButtons
                     currentRsvp={userRsvp}
-                    onRsvp={(status, comment) => handleRsvpUpdate(trip.id, status, comment)}
+                    onRsvp={(status) => handleRsvpUpdate(trip.id, status)}
                   />
-                )}
-
-                {/* Display RSVP Comments */}
-                {trip.rsvps && trip.rsvps.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="space-y-2">
-                      {trip.rsvps
-                        .filter(rsvp => rsvp.comment && rsvp.comment.trim())
-                        .map(rsvp => (
-                          <div key={rsvp.id} className="flex items-start space-x-2 text-sm">
-                            <div
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 mt-0.5"
-                              style={{ backgroundColor: getMemberColor(rsvp.member_id) }}
-                            >
-                              {getMemberName(rsvp.member_id).charAt(0)}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <span className="font-medium text-gray-900">
-                                  {getMemberName(rsvp.member_id)}
-                                </span>
-                                <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                                  rsvp.status === 'going' ? 'bg-green-100 text-green-700' :
-                                  rsvp.status === 'maybe' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-red-100 text-red-700'
-                                }`}>
-                                  {rsvp.status}
-                                </span>
-                              </div>
-                              <p className="text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-                                {rsvp.comment}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
                 )}
               </div>
             )
