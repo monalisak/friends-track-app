@@ -26,12 +26,29 @@ export default function AwayPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
+    // Test Supabase connection first
+    const testConnection = async () => {
+      try {
+        console.log('Client-side: Testing Supabase connection...')
+        const { data, error } = await supabase.from('members').select('count').limit(1)
+        if (error) {
+          console.error('Client-side: Supabase connection test failed:', error)
+        } else {
+          console.log('Client-side: Supabase connection OK')
+        }
+      } catch (err) {
+        console.error('Client-side: Supabase test exception:', err)
+      }
+    }
+
+    testConnection()
     fetchTimeAway()
 
     // Set up real-time subscriptions
     const timeAwaySubscription = supabase
       .channel('time_away_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'time_away' }, () => {
+        console.log('Client-side: Real-time update triggered for time_away')
         fetchTimeAway()
       })
       .subscribe()
@@ -187,12 +204,22 @@ export default function AwayPage() {
           <h1 className="text-2xl font-bold text-gray-900">Time Away</h1>
           <p className="text-gray-600 mt-1">Share when you're traveling</p>
         </div>
-        <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
-          <SheetTrigger asChild>
-            <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
-              <Plus className="w-5 h-5" />
-            </button>
-          </SheetTrigger>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => {
+              console.log('Client-side: Manual refresh triggered')
+              fetchTimeAway()
+            }}
+            className="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+          >
+            Refresh
+          </button>
+          <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
+            <SheetTrigger asChild>
+              <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
+                <Plus className="w-5 h-5" />
+              </button>
+            </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">
               <SheetHeader>
@@ -207,6 +234,7 @@ export default function AwayPage() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </header>
 
       {/* Filter Tabs */}
