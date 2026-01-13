@@ -12,10 +12,7 @@ import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
   const { currentUser } = useUser()
-  const [nextMeetup, setNextMeetup] = useState<any>(null)
-  const [upcomingMeetups, setUpcomingMeetups] = useState<any[]>([])
-  const [upcomingTrips, setUpcomingTrips] = useState<any[]>([])
-  const [awaySoon, setAwaySoon] = useState<any[]>([])
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
   const [setupRequired, setSetupRequired] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showMeetupForm, setShowMeetupForm] = useState(false)
@@ -31,14 +28,13 @@ export function DashboardContent() {
     }
 
     try {
-      // Fetch dashboard data
+      // Fetch all upcoming events for unified calendar view
       const [
-        { data: nextMeetupData, error: nextMeetupError },
-        { data: upcomingMeetupsData },
-        { data: upcomingTripsData },
-        { data: awaySoonData }
+        { data: meetupsData },
+        { data: tripsData },
+        { data: timeAwayData }
       ] = await Promise.all([
-        // Next upcoming meetup
+        // All upcoming meetups
         supabase
           .from('meetups')
           .select(`
@@ -46,48 +42,77 @@ export function DashboardContent() {
             rsvps(*)
           `)
           .gte('date_time', new Date().toISOString())
-          .order('date_time', { ascending: true })
-          .limit(1)
-          .single(),
+          .order('date_time', { ascending: true }),
 
-        // Next 5 upcoming meetups
-        supabase
-          .from('meetups')
-          .select(`
-            *,
-            rsvps(*)
-          `)
-          .gte('date_time', new Date().toISOString())
-          .order('date_time', { ascending: true })
-          .limit(5),
-
-        // Next 3 upcoming trips
+        // All upcoming trips
         supabase
           .from('trips')
           .select(`
             *,
             rsvps(*)
           `)
-          .gte('end_date', new Date().toISOString().split('T')[0])
-          .order('start_date', { ascending: true })
-          .limit(3),
+          .gte('start_date', new Date().toISOString().split('T')[0])
+          .order('start_date', { ascending: true }),
 
-        // Who's away in next 30 days
+        // All upcoming time away
         supabase
           .from('time_away')
           .select(`
             *,
             members!member_id(*)
           `)
-          .gte('end_date', new Date().toISOString().split('T')[0])
-          .lte('start_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .gte('start_date', new Date().toISOString().split('T')[0])
           .order('start_date', { ascending: true })
       ])
 
-      setNextMeetup(nextMeetupError ? null : nextMeetupData)
-      setUpcomingMeetups(upcomingMeetupsData || [])
-      setUpcomingTrips(upcomingTripsData || [])
-      setAwaySoon(awaySoonData || [])
+      // Combine and sort all events by date for calendar view
+      const allEvents: any[] = []
+
+      // Add meetups
+      meetupsData?.forEach(meetup => {
+        allEvents.push({
+          id: `meetup-${meetup.id}`,
+          type: 'meetup',
+          title: meetup.title,
+          date: new Date(meetup.date_time),
+          location: meetup.location,
+          notes: meetup.notes,
+          data: meetup,
+          created_by: meetup.created_by
+        })
+      })
+
+      // Add trips
+      tripsData?.forEach(trip => {
+        allEvents.push({
+          id: `trip-${trip.id}`,
+          type: 'trip',
+          title: trip.title,
+          date: new Date(trip.start_date),
+          location: trip.location,
+          notes: trip.notes,
+          data: trip,
+          created_by: trip.created_by
+        })
+      })
+
+      // Add time away
+      timeAwayData?.forEach(timeAway => {
+        allEvents.push({
+          id: `timeaway-${timeAway.id}`,
+          type: 'timeaway',
+          title: `${timeAway.members?.name || 'Unknown'} - ${timeAway.type || 'Time Away'}`,
+          date: new Date(timeAway.start_date),
+          location: null,
+          notes: timeAway.notes,
+          data: timeAway,
+          created_by: timeAway.created_by
+        })
+      })
+
+      // Sort by date and take first 15 events for calendar view
+      allEvents.sort((a, b) => a.date.getTime() - b.date.getTime())
+      setUpcomingEvents(allEvents.slice(0, 15))
     } catch (error) {
       console.error('Dashboard error:', error)
       // Check if it's a table not found error
@@ -328,100 +353,101 @@ export function DashboardContent() {
         </SheetContent>
       </Sheet>
 
-      {/* Next Meetup Card */}
-      {nextMeetup && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Next Meetup</h2>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-white">{nextMeetup.title}</h3>
-                <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  <span className="text-sm">
-                    {formatDateTime(nextMeetup.date_time)}
-                  </span>
-                </div>
-                {nextMeetup.location && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{nextMeetup.location}</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center text-sm text-blue-600">
-                <Users className="w-4 h-4 mr-1" />
-                <span>{nextMeetup.rsvps?.length || 0} going</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
-      {/* Upcoming Meetups */}
-      {upcomingMeetups.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Upcoming Meetups</h2>
-          <div className="space-y-3">
-            {upcomingMeetups.map((meetup: any) => (
-              <div key={meetup.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                <h3 className="font-medium text-gray-900 dark:text-white">{meetup.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {formatDateTime(meetup.date_time)}
-                </p>
-                {meetup.location && (
-                  <p className="text-sm text-gray-600">{meetup.location}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* Upcoming Trips */}
-      {upcomingTrips.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Upcoming Trips</h2>
-          <div className="space-y-3">
-            {upcomingTrips.map((trip: any) => (
-              <div key={trip.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                <h3 className="font-medium text-gray-900 dark:text-white">{trip.title}</h3>
-                {trip.location && <p className="text-sm text-gray-600 dark:text-gray-300">{trip.location}</p>}
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Calendar View - All Upcoming Events */}
+      <section>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upcoming Events</h2>
 
-      {/* Who's Away */}
-      {awaySoon.length > 0 && (
-        <section>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Who's Away Soon</h2>
-          <div className="space-y-3">
-            {awaySoon.map((timeAway: any) => (
-              <div key={timeAway.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{timeAway.members?.name || 'Unknown'}</p>
-                    {timeAway.type && <p className="text-sm text-gray-600">{timeAway.type}</p>}
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center text-gray-600">
-                      <Clock className="w-4 h-4 mr-1" />
-                      <span className="text-sm">
-                        {new Date(timeAway.start_date).toLocaleDateString()} - {new Date(timeAway.end_date).toLocaleDateString()}
-                      </span>
+        {upcomingEvents.length === 0 ? (
+          <div className="text-center py-12">
+            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              No upcoming events
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Add a meetup or trip to get started!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {upcomingEvents.map((event) => {
+              const dayName = event.date.toLocaleDateString('en-US', { weekday: 'short' })
+              const monthDay = event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+              return (
+                <div
+                  key={event.id}
+                  className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow ${
+                    event.type === 'meetup' ? 'cursor-pointer' :
+                    event.type === 'trip' ? 'cursor-pointer' : ''
+                  }`}
+                  onClick={() => {
+                    if (event.type === 'meetup') {
+                      window.location.href = `/meetups/${event.data.id}`
+                    } else if (event.type === 'trip') {
+                      window.location.href = `/trips/${event.data.id}`
+                    }
+                  }}
+                >
+                  {/* Date Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-center">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{dayName}</div>
+                        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{monthDay}</div>
+                      </div>
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        event.type === 'meetup' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                        event.type === 'trip' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                      }`}>
+                        {event.type === 'meetup' ? 'Meetup' :
+                         event.type === 'trip' ? 'Trip' : 'Time Away'}
+                      </div>
                     </div>
+
+                    {event.type !== 'timeaway' && (
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        <Users className="w-4 h-4 mr-1" />
+                        <span>{event.data.rsvps?.length || 0} going</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Event Content */}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2">
+                      {event.title}
+                    </h3>
+
+                    {event.location && (
+                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                    )}
+
+                    {event.notes && (
+                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                        {event.notes}
+                      </p>
+                    )}
+
+                    {/* Time for meetups */}
+                    {event.type === 'meetup' && (
+                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mt-2">
+                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{event.date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* Setup Required State */}
       {setupRequired && (
@@ -445,14 +471,6 @@ export function DashboardContent() {
         </div>
       )}
 
-      {/* Empty State */}
-      {!setupRequired && !nextMeetup && upcomingMeetups.length === 0 && upcomingTrips.length === 0 && awaySoon.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Welcome to Mona's Friends Tracker!</h3>
-          <p className="text-gray-600 dark:text-gray-300">No upcoming events yet. Start by adding a meetup or trip.</p>
-        </div>
-      )}
     </div>
   )
 }
