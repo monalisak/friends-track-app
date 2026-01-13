@@ -41,14 +41,14 @@ create table if not exists public.trips (
 -- 4) Time Away
 create table if not exists public.time_away (
   id uuid primary key default gen_random_uuid(),
-  member_id text not null,
+  member_id text not null references public.members(id) on delete cascade,
   start_date date not null,
   end_date date not null,
   type text check (type in ('Holiday', 'Work', 'Family', 'Other')),
   notes text,
-  created_by text not null,
+  created_by text not null references public.members(id),
   created_at timestamptz not null default now(),
-  updated_by text,
+  updated_by text references public.members(id),
   updated_at timestamptz
 );
 
