@@ -182,7 +182,7 @@ export default function MeetupsPage() {
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Meetups</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meetups</h1>
           <p className="text-gray-600 mt-1">Plan and track group gatherings</p>
         </div>
         <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
@@ -234,7 +234,7 @@ export default function MeetupsPage() {
         {meetups.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No {filter} meetups
             </h3>
             <p className="text-gray-600">
@@ -252,7 +252,7 @@ export default function MeetupsPage() {
             return (
               <div key={meetup.id} className="bg-white border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">{meetup.title}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{meetup.title}</h3>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     !userRsvp
                       ? 'bg-gray-100 text-gray-800'
@@ -313,7 +313,7 @@ export default function MeetupsPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Meetup?</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Meetup?</h3>
             <p className="text-gray-600 text-sm mb-6">
               This will permanently delete this meetup and all RSVPs. This action cannot be undone.
             </p>

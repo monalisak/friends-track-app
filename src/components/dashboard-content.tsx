@@ -243,7 +243,7 @@ export function DashboardContent() {
   return (
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Mona's Friends Tracker</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mona's Friends Tracker</h1>
         <p className="text-gray-600 mt-1">
           {currentUser ? `Hi ${currentUser.name}!` : 'Track meetups, trips, and time away'}
         </p>
@@ -331,11 +331,11 @@ export function DashboardContent() {
       {/* Next Meetup Card */}
       {nextMeetup && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Next Meetup</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Next Meetup</h2>
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">{nextMeetup.title}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">{nextMeetup.title}</h3>
                 <div className="flex items-center text-gray-600 mt-1">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span className="text-sm">
@@ -361,11 +361,11 @@ export function DashboardContent() {
       {/* Upcoming Meetups */}
       {upcomingMeetups.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Upcoming Meetups</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Upcoming Meetups</h2>
           <div className="space-y-3">
             {upcomingMeetups.map((meetup: any) => (
               <div key={meetup.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                <h3 className="font-medium text-gray-900">{meetup.title}</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white">{meetup.title}</h3>
                 <p className="text-sm text-gray-600">
                   {formatDateTime(meetup.date_time)}
                 </p>
@@ -381,11 +381,11 @@ export function DashboardContent() {
       {/* Upcoming Trips */}
       {upcomingTrips.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Upcoming Trips</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Upcoming Trips</h2>
           <div className="space-y-3">
             {upcomingTrips.map((trip: any) => (
               <div key={trip.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                <h3 className="font-medium text-gray-900">{trip.title}</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white">{trip.title}</h3>
                 {trip.location && <p className="text-sm text-gray-600">{trip.location}</p>}
                 <p className="text-sm text-gray-600">
                   {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
@@ -399,13 +399,13 @@ export function DashboardContent() {
       {/* Who's Away */}
       {awaySoon.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Who's Away Soon</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Who's Away Soon</h2>
           <div className="space-y-3">
             {awaySoon.map((timeAway: any) => (
               <div key={timeAway.id} className="bg-white border border-gray-200 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{timeAway.members?.name || 'Unknown'}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{timeAway.members?.name || 'Unknown'}</p>
                     {timeAway.type && <p className="text-sm text-gray-600">{timeAway.type}</p>}
                   </div>
                   <div className="text-right">
@@ -429,7 +429,7 @@ export function DashboardContent() {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Users className="w-8 h-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Database Setup Required</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Database Setup Required</h3>
           <p className="text-gray-600 mb-4">
             You need to run the database setup in your Supabase project.
           </p>
@@ -449,7 +449,7 @@ export function DashboardContent() {
       {!setupRequired && !nextMeetup && upcomingMeetups.length === 0 && upcomingTrips.length === 0 && awaySoon.length === 0 && (
         <div className="text-center py-12">
           <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Welcome to Mona's Friends Tracker!</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Welcome to Mona's Friends Tracker!</h3>
           <p className="text-gray-600">No upcoming events yet. Start by adding a meetup or trip.</p>
         </div>
       )}

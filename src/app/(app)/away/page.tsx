@@ -201,7 +201,7 @@ export default function AwayPage() {
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Time Away</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Time Away</h1>
           <p className="text-gray-600 mt-1">Share when you're traveling</p>
         </div>
         <div className="flex space-x-3">
@@ -266,7 +266,7 @@ export default function AwayPage() {
         {Object.keys(groupedEntries).length === 0 ? (
           <div className="text-center py-12">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No time away entries
             </h3>
             <p className="text-gray-600">
@@ -278,7 +278,7 @@ export default function AwayPage() {
             console.log(`Rendering member ${memberId} with ${entries.length} entries`)
             return (
             <section key={memberId}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                 <div
                   className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2"
                   style={{ backgroundColor: getMemberColor(memberId) }}
@@ -295,7 +295,7 @@ export default function AwayPage() {
                   <div key={entry.id} className="bg-white border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {entry.type || 'Time Away'}
                         </p>
                         {entry.notes && (
@@ -333,7 +333,7 @@ export default function AwayPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Time Away?</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Time Away?</h3>
             <p className="text-gray-600 text-sm mb-6">
               This will permanently delete this time away entry. This action cannot be undone.
             </p>
