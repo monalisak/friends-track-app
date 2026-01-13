@@ -69,6 +69,8 @@ export default function AwayPage() {
           }
         }
       } else {
+        console.log('Fetched time away data:', data)
+        console.log('Number of entries:', data?.length || 0)
         setTimeAwayEntries(data || [])
       }
     } catch (error) {
@@ -151,6 +153,9 @@ export default function AwayPage() {
     acc[memberId].push(entry)
     return acc
   }, {} as Record<string, TimeAway[]>)
+
+  console.log('Grouped entries:', groupedEntries)
+  console.log('Number of members with entries:', Object.keys(groupedEntries).length)
 
   if (loading) {
     return (
