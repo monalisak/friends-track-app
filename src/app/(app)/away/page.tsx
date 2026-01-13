@@ -22,7 +22,7 @@ export default function AwayPage() {
   const [timeAwayEntries, setTimeAwayEntries] = useState<TimeAway[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [filter, setFilter] = useState<'upcoming' | 'all'>('upcoming')
+  const [filter, setFilter] = useState<'upcoming' | 'all'>('all')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
