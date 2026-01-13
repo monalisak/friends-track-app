@@ -185,7 +185,7 @@ export default function MeetupsPage() {
       <header className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meetups</h1>
-          <p className="text-gray-600 mt-1">Plan and track group gatherings</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Plan and track group gatherings</p>
         </div>
         <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
           <SheetTrigger asChild>
@@ -239,7 +239,7 @@ export default function MeetupsPage() {
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No {filter} meetups
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               {filter === 'upcoming'
                 ? 'Create a new meetup to get started!'
                 : 'Your past meetups will appear here.'
@@ -271,27 +271,27 @@ export default function MeetupsPage() {
                     {userRsvp ? userRsvp.status : 'Not responded'}
                   </span>
                 </div>
-                <div className="flex items-center text-gray-600 text-sm mb-1">
+                <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-1">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span>
                     {formatDateTime(meetup.date_time)}
                   </span>
                 </div>
                 {meetup.location && (
-                  <div className="flex items-center text-gray-600 text-sm mb-3">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-3">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span>{meetup.location}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center text-gray-600 text-sm">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                     <Users className="w-4 h-4 mr-1" />
                     <span>
                       {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       Created by {getMemberName(meetup.created_by)}
                     </div>
                     <button
@@ -320,7 +320,7 @@ export default function MeetupsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Meetup?</h3>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
               This will permanently delete this meetup and all RSVPs. This action cannot be undone.
             </p>
             <div className="flex space-x-3">

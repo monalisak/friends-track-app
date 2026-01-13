@@ -181,8 +181,8 @@ export default function TripsPage() {
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Group Trips</h1>
-          <p className="text-gray-600 mt-1">Plan and organize trips together</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Group Trips</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Plan and organize trips together</p>
         </div>
         <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
           <SheetTrigger asChild>
@@ -211,10 +211,10 @@ export default function TripsPage() {
         {trips.length === 0 ? (
           <div className="text-center py-12">
             <Plane className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No upcoming trips
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Create a new trip to get started!
             </p>
           </div>
@@ -250,14 +250,14 @@ export default function TripsPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center text-gray-600 text-sm">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                     <Users className="w-4 h-4 mr-1" />
                     <span>
                       {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       Created by {getMemberName(trip.created_by)}
                     </div>
                     <button
@@ -285,8 +285,8 @@ export default function TripsPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Trip?</h3>
-            <p className="text-gray-600 text-sm mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Trip?</h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
               This will permanently delete this trip and all RSVPs. This action cannot be undone.
             </p>
             <div className="flex space-x-3">

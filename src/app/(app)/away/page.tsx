@@ -202,7 +202,7 @@ export default function AwayPage() {
       <header className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Time Away</h1>
-          <p className="text-gray-600 mt-1">Share when you're traveling</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Share when you're traveling</p>
         </div>
         <div className="flex space-x-3">
           <button
@@ -269,7 +269,7 @@ export default function AwayPage() {
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No time away entries
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Add your travel plans to let others know when you're away.
             </p>
           </div>
@@ -299,11 +299,11 @@ export default function AwayPage() {
                           {entry.type || 'Time Away'}
                         </p>
                         {entry.notes && (
-                          <p className="text-sm text-gray-600 mt-1">{entry.notes}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{entry.notes}</p>
                         )}
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="text-right text-sm text-gray-600">
+                        <div className="text-right text-sm text-gray-600 dark:text-gray-300">
                           <div className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
                             <span>
@@ -334,7 +334,7 @@ export default function AwayPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Time Away?</h3>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
               This will permanently delete this time away entry. This action cannot be undone.
             </p>
             <div className="flex space-x-3">

@@ -244,7 +244,7 @@ export function DashboardContent() {
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mona's Friends Tracker</h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
           {currentUser ? `Hi ${currentUser.name}!` : 'Track meetups, trips, and time away'}
         </p>
       </header>
@@ -336,14 +336,14 @@ export function DashboardContent() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 dark:text-white">{nextMeetup.title}</h3>
-                <div className="flex items-center text-gray-600 mt-1">
+                <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
                   <Calendar className="w-4 h-4 mr-1" />
                   <span className="text-sm">
                     {formatDateTime(nextMeetup.date_time)}
                   </span>
                 </div>
                 {nextMeetup.location && (
-                  <div className="flex items-center text-gray-600 mt-1">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span className="text-sm">{nextMeetup.location}</span>
                   </div>
@@ -366,7 +366,7 @@ export function DashboardContent() {
             {upcomingMeetups.map((meetup: any) => (
               <div key={meetup.id} className="bg-white border border-gray-200 rounded-lg p-3">
                 <h3 className="font-medium text-gray-900 dark:text-white">{meetup.title}</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   {formatDateTime(meetup.date_time)}
                 </p>
                 {meetup.location && (
@@ -386,8 +386,8 @@ export function DashboardContent() {
             {upcomingTrips.map((trip: any) => (
               <div key={trip.id} className="bg-white border border-gray-200 rounded-lg p-3">
                 <h3 className="font-medium text-gray-900 dark:text-white">{trip.title}</h3>
-                {trip.location && <p className="text-sm text-gray-600">{trip.location}</p>}
-                <p className="text-sm text-gray-600">
+                {trip.location && <p className="text-sm text-gray-600 dark:text-gray-300">{trip.location}</p>}
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
                 </p>
               </div>
@@ -430,7 +430,7 @@ export function DashboardContent() {
             <Users className="w-8 h-8 text-blue-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Database Setup Required</h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
             You need to run the database setup in your Supabase project.
           </p>
           <div className="bg-gray-50 p-4 rounded-lg text-left text-sm">
@@ -450,7 +450,7 @@ export function DashboardContent() {
         <div className="text-center py-12">
           <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Welcome to Mona's Friends Tracker!</h3>
-          <p className="text-gray-600">No upcoming events yet. Start by adding a meetup or trip.</p>
+          <p className="text-gray-600 dark:text-gray-300">No upcoming events yet. Start by adding a meetup or trip.</p>
         </div>
       )}
     </div>
