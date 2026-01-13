@@ -91,26 +91,36 @@ export default function AwayPage() {
   const handleCreateTimeAway = async (data: any) => {
     if (!currentUser) return
 
+    console.log('Creating time away with data:', data)
+    console.log('Current user:', currentUser)
+
     try {
-      const { error } = await supabase
+      const insertData = {
+        member_id: currentUser.id,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        type: data.type || null,
+        notes: data.notes || null,
+        created_by: currentUser.id,
+      }
+
+      console.log('Inserting data:', insertData)
+
+      const { data: result, error } = await supabase
         .from('time_away')
-        .insert({
-          member_id: currentUser.id,
-          start_date: data.startDate,
-          end_date: data.endDate,
-          type: data.type || null,
-          notes: data.notes || null,
-          created_by: currentUser.id,
-        })
+        .insert(insertData)
+        .select()
 
       if (error) {
         console.error('Error creating time away:', error)
+        console.error('Error details:', error.message, error.details, error.hint)
       } else {
+        console.log('Time away created successfully:', result)
         setShowCreateForm(false)
         fetchTimeAway()
       }
     } catch (error) {
-      console.error('Error creating time away:', error)
+      console.error('Exception creating time away:', error)
     }
   }
 
