@@ -20,6 +20,8 @@ interface TimeAwayFormProps {
 }
 
 export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormProps) {
+  console.log('TimeAwayForm: Component initialized with onSubmit:', typeof onSubmit)
+
   const { currentUser, members } = useUser()
   const [formData, setFormData] = useState<TimeAwayFormData>({
     startDate: initialData?.startDate || '',
@@ -31,11 +33,21 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.startDate || !formData.endDate) return
+    console.log('TimeAwayForm: handleSubmit called')
+    console.log('TimeAwayForm: formData:', formData)
+
+    if (!formData.startDate || !formData.endDate) {
+      console.log('TimeAwayForm: Validation failed - missing dates')
+      return
+    }
 
     setLoading(true)
+    console.log('TimeAwayForm: Calling onSubmit with:', formData)
     try {
       await onSubmit(formData)
+      console.log('TimeAwayForm: onSubmit completed successfully')
+    } catch (error) {
+      console.error('TimeAwayForm: onSubmit threw error:', error)
     } finally {
       setLoading(false)
     }
@@ -128,6 +140,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
           type="submit"
           className="flex-1 h-11"
           disabled={loading || !formData.startDate || !formData.endDate}
+          onClick={() => console.log('TimeAwayForm: Submit button clicked')}
         >
           {loading ? 'Adding...' : 'Add Time Away'}
         </Button>
