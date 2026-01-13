@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Plane, Plus, Users, Trash2 } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { supabase } from "@/utils/supabase"
@@ -24,6 +25,7 @@ interface Trip {
 }
 
 export default function TripsPage() {
+  const router = useRouter()
   const { currentUser, members } = useUser()
   const [trips, setTrips] = useState<Trip[]>([])
   const [loading, setLoading] = useState(true)
@@ -222,23 +224,27 @@ export default function TripsPage() {
             const rsvpCounts = getRsvpCounts(trip)
 
             return (
-              <div key={trip.id} className="bg-white border border-gray-200 rounded-lg p-4">
+              <div
+                key={trip.id}
+                className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => router.push(`/trips/${trip.id}`)}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{trip.title}</h3>
-                    {trip.location && <p className="text-sm text-gray-600 mt-1">{trip.location}</p>}
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{trip.title}</h3>
+                    {trip.location && <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{trip.location}</p>}
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     !userRsvp
-                      ? 'bg-gray-100 text-gray-800'
+                      ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
                       : userRsvp.status === 'going'
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                       : userRsvp.status === 'maybe'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                   }`}>
                     {userRsvp ? userRsvp.status : 'Not responded'}
                   </span>
