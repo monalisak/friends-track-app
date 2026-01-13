@@ -71,6 +71,11 @@ export default function AwayPage() {
       } else {
         console.log('Fetched time away data:', data)
         console.log('Number of entries:', data?.length || 0)
+        console.log('First entry structure:', data?.[0])
+        if (data?.[0]) {
+          console.log('First entry member_id:', data[0].member_id)
+          console.log('First entry members:', data[0].members)
+        }
         setTimeAwayEntries(data || [])
       }
     } catch (error) {
@@ -233,7 +238,9 @@ export default function AwayPage() {
             </p>
           </div>
         ) : (
-          Object.entries(groupedEntries).map(([memberId, entries]) => (
+          Object.entries(groupedEntries).map(([memberId, entries]) => {
+            console.log(`Rendering member ${memberId} with ${entries.length} entries`)
+            return (
             <section key={memberId}>
               <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <div
@@ -281,7 +288,8 @@ export default function AwayPage() {
                 ))}
               </div>
             </section>
-          ))
+            )
+          })
         )}
       </div>
 
