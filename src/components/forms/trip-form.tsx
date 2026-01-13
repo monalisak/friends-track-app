@@ -33,6 +33,12 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
     e.preventDefault()
     if (!formData.title || !formData.startDate || !formData.endDate) return
 
+    // Additional validation: ensure end date is not before start date
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      alert('End date cannot be before start date')
+      return
+    }
+
     setLoading(true)
     try {
       await onSubmit(formData)
