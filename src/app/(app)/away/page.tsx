@@ -57,29 +57,29 @@ export default function AwayPage() {
 
       query = query.order('start_date', { ascending: true })
 
+      console.log('Client-side: Executing time away query...')
       const { data, error } = await query
 
       if (error) {
-        console.error('Error fetching time away:', error)
+        console.error('Client-side: Error fetching time away:', error)
         // Check if it's a table not found error
         if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
           const err = error as { code?: string; message?: string }
           if (err.code === 'PGRST116' || err.message?.includes('relation') || err.message?.includes('does not exist')) {
-            console.error('Database tables not found. Please run the SQL setup in Supabase.')
+            console.error('Client-side: Database tables not found. Please run the SQL setup in Supabase.')
           }
         }
       } else {
-        console.log('Fetched time away data:', data)
-        console.log('Number of entries:', data?.length || 0)
-        console.log('First entry structure:', data?.[0])
-        if (data?.[0]) {
-          console.log('First entry member_id:', data[0].member_id)
-          console.log('First entry members:', data[0].members)
+        console.log('Client-side: Fetched time away data:', data)
+        console.log('Client-side: Number of entries:', data?.length || 0)
+        if (data && data.length > 0) {
+          console.log('Client-side: First entry:', data[0])
+          console.log('Client-side: First entry has members:', !!data[0].members)
         }
         setTimeAwayEntries(data || [])
       }
     } catch (error) {
-      console.error('Error fetching time away:', error)
+      console.error('Client-side: Exception fetching time away:', error)
     } finally {
       setLoading(false)
     }
@@ -159,8 +159,16 @@ export default function AwayPage() {
     return acc
   }, {} as Record<string, TimeAway[]>)
 
-  console.log('Grouped entries:', groupedEntries)
-  console.log('Number of members with entries:', Object.keys(groupedEntries).length)
+  // Client-side logging only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('Client-side: Time away entries:', timeAwayEntries.length)
+      console.log('Client-side: Grouped entries:', Object.keys(groupedEntries).length, 'members')
+      if (timeAwayEntries.length > 0) {
+        console.log('Client-side: First entry:', timeAwayEntries[0])
+      }
+    }
+  }, [timeAwayEntries, groupedEntries])
 
   if (loading) {
     return (
