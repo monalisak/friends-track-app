@@ -97,6 +97,11 @@ export default function TripsPage() {
     return member?.name || 'Unknown'
   }
 
+  const getMemberColor = (memberId: string) => {
+    const member = members.find(m => m.id === memberId)
+    return member?.color || '#6b7280'
+  }
+
   const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant', comment?: string) => {
     if (!currentUser) return
 
