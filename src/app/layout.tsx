@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Friend Track",
+  title: "Mona's Friends Tracker",
   description: "Track meetups, trips, and time away with your friends",
   manifest: "/manifest.json",
   themeColor: "#3b82f6",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Friend Track",
+    title: "Mona's Friends Tracker",
   },
 };
 
@@ -38,7 +38,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Friend Track" />
+        <meta name="apple-mobile-web-app-title" content="Mona's Friends Tracker" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icon-512x512.png" />
       </head>

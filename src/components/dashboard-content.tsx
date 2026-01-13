@@ -243,7 +243,7 @@ export function DashboardContent() {
   return (
     <div className="max-w-md mx-auto px-4 py-6">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Friend Track</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Mona's Friends Tracker</h1>
         <p className="text-gray-600 mt-1">
           {currentUser ? `Hi ${currentUser.name}!` : 'Track meetups, trips, and time away'}
         </p>
@@ -449,7 +449,7 @@ export function DashboardContent() {
       {!setupRequired && !nextMeetup && upcomingMeetups.length === 0 && upcomingTrips.length === 0 && awaySoon.length === 0 && (
         <div className="text-center py-12">
           <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Welcome to Friend Track!</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Welcome to Mona's Friends Tracker!</h3>
           <p className="text-gray-600">No upcoming events yet. Start by adding a meetup or trip.</p>
         </div>
       )}
