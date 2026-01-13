@@ -65,7 +65,7 @@ export default function AwayPage() {
         .from('time_away')
         .select(`
           *,
-          members(*)
+          members!member_id(*)
         `)
 
       if (filter === 'upcoming') {

@@ -77,7 +77,7 @@ export function DashboardContent() {
           .from('time_away')
           .select(`
             *,
-            members(*)
+            members!member_id(*)
           `)
           .gte('end_date', new Date().toISOString().split('T')[0])
           .lte('start_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
