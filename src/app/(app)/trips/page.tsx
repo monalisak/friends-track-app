@@ -17,6 +17,7 @@ interface Trip {
   notes?: string
   created_by: string
   rsvps: Array<{
+    id: string
     member_id: string
     status: 'going' | 'maybe' | 'cant'
     comment?: string
