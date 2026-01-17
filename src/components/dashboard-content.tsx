@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { Calendar, MapPin, Users, Clock, Plus, Plane, Pencil } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
-import { supabase } from "@/utils/supabase"
+import { useData } from "@/contexts/data-context"
 import { MeetupForm } from "@/components/forms/meetup-form"
 import { TripForm } from "@/components/forms/trip-form"
 import { TimeAwayForm } from "@/components/forms/time-away-form"
@@ -17,212 +17,26 @@ import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
   const { currentUser, members } = useUser()
-  const [meetups, setMeetups] = useState<any[]>([])
-  const [trips, setTrips] = useState<any[]>([])
-  const [timeAway, setTimeAway] = useState<any[]>([])
-  const [setupRequired, setSetupRequired] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const {
+    meetups: allMeetups,
+    trips: allTrips,
+    timeAway: allTimeAway,
+    loading,
+    setupRequired,
+    updateMeetupRsvp,
+    updateTripRsvp,
+    updateMeetup,
+    updateTrip,
+    createMeetup,
+    createTrip,
+    createTimeAway
+  } = useData()
+
   const [showEditMeetup, setShowEditMeetup] = useState<any>(null)
   const [showEditTrip, setShowEditTrip] = useState<any>(null)
   const [showMeetupForm, setShowMeetupForm] = useState(false)
   const [showTripForm, setShowTripForm] = useState(false)
   const [showTimeAwayForm, setShowTimeAwayForm] = useState(false)
-
-  // RSVP handling functions
-  const handleMeetupRsvp = async (meetupId: string, status: 'going' | 'maybe' | 'cant' | null) => {
-    if (!currentUser) return
-
-    console.log('Updating meetup RSVP:', meetupId, status)
-
-    // Optimistically update local state first
-    setMeetups(prevMeetups =>
-      prevMeetups.map(meetup => {
-        if (meetup.id === meetupId) {
-          let updatedRsvps = [...(meetup.rsvps || [])]
-
-          if (status === null) {
-            // Remove user's RSVP
-            updatedRsvps = updatedRsvps.filter(rsvp => rsvp.member_id !== currentUser.id)
-          } else {
-            // Update or add user's RSVP
-            const existingIndex = updatedRsvps.findIndex(rsvp => rsvp.member_id === currentUser.id)
-            if (existingIndex >= 0) {
-              updatedRsvps[existingIndex] = { member_id: currentUser.id, status }
-            } else {
-              updatedRsvps.push({ member_id: currentUser.id, status })
-            }
-          }
-
-          return { ...meetup, rsvps: updatedRsvps }
-        }
-        return meetup
-      })
-    )
-
-    try {
-      let error = null
-
-      if (status === null) {
-        // Clear RSVP
-        console.log('Deleting RSVP for meetup:', meetupId)
-        const result = await supabase
-          .from('rsvps')
-          .delete()
-          .eq('meetup_id', meetupId)
-          .eq('member_id', currentUser.id)
-        error = result.error
-        console.log('Delete result:', result)
-      } else {
-        // Update RSVP - use explicit onConflict
-        console.log('Upserting RSVP for meetup:', meetupId, status)
-        const result = await supabase
-          .from('rsvps')
-          .upsert({
-            meetup_id: meetupId,
-            member_id: currentUser.id,
-            status,
-          }, {
-            onConflict: 'meetup_id,member_id'
-          })
-        error = result.error
-        console.log('Upsert result:', result)
-      }
-
-      if (error) {
-        console.error('Error updating meetup RSVP:', error)
-        // Revert optimistic update on error
-        fetchDashboardData()
-      } else {
-        console.log('Meetup RSVP updated successfully')
-        // Real-time will handle updates, but also refresh to ensure consistency
-        setTimeout(() => fetchDashboardData(), 1000)
-      }
-    } catch (error) {
-      console.error('Exception updating meetup RSVP:', error)
-      // Revert optimistic update on error
-      fetchDashboardData()
-    }
-  }
-
-  const handleTripRsvp = async (tripId: string, status: 'going' | 'maybe' | 'cant' | null) => {
-    if (!currentUser) return
-
-    console.log('Updating trip RSVP:', tripId, status)
-
-    // Optimistically update local state first
-    setTrips(prevTrips =>
-      prevTrips.map(trip => {
-        if (trip.id === tripId) {
-          let updatedRsvps = [...(trip.rsvps || [])]
-
-          if (status === null) {
-            // Remove user's RSVP
-            updatedRsvps = updatedRsvps.filter(rsvp => rsvp.member_id !== currentUser.id)
-          } else {
-            // Update or add user's RSVP
-            const existingIndex = updatedRsvps.findIndex(rsvp => rsvp.member_id === currentUser.id)
-            if (existingIndex >= 0) {
-              updatedRsvps[existingIndex] = { member_id: currentUser.id, status }
-            } else {
-              updatedRsvps.push({ member_id: currentUser.id, status })
-            }
-          }
-
-          return { ...trip, rsvps: updatedRsvps }
-        }
-        return trip
-      })
-    )
-
-    try {
-      let error = null
-
-      if (status === null) {
-        // Clear RSVP
-        console.log('Deleting RSVP for trip:', tripId)
-        const result = await supabase
-          .from('rsvps')
-          .delete()
-          .eq('trip_id', tripId)
-          .eq('member_id', currentUser.id)
-        error = result.error
-        console.log('Delete result:', result)
-      } else {
-        // Update RSVP - use explicit onConflict
-        console.log('Upserting RSVP for trip:', tripId, status)
-        const result = await supabase
-          .from('rsvps')
-          .upsert({
-            trip_id: tripId,
-            member_id: currentUser.id,
-            status,
-          }, {
-            onConflict: 'trip_id,member_id'
-          })
-        error = result.error
-        console.log('Upsert result:', result)
-      }
-
-      if (error) {
-        console.error('Error updating trip RSVP:', error)
-        // Revert optimistic update on error
-        fetchDashboardData()
-      } else {
-        console.log('Trip RSVP updated successfully')
-        // Real-time will handle updates, but also refresh to ensure consistency
-        setTimeout(() => fetchDashboardData(), 1000)
-      }
-    } catch (error) {
-      console.error('Exception updating trip RSVP:', error)
-      // Revert optimistic update on error
-      fetchDashboardData()
-    }
-  }
-
-  const handleEditMeetup = async (data: any) => {
-    try {
-      const { error } = await supabase
-        .from('meetups')
-        .update({
-          title: data.title,
-          date_time: data.dateTime,
-          location: data.location,
-          notes: data.notes,
-          updated_by: currentUser?.id
-        })
-        .eq('id', showEditMeetup.id)
-
-      if (error) throw error
-
-      setShowEditMeetup(null)
-      fetchDashboardData()
-    } catch (error) {
-      console.error('Error updating meetup:', error)
-    }
-  }
-
-  const handleEditTrip = async (data: any) => {
-    try {
-      const { error } = await supabase
-        .from('trips')
-        .update({
-          title: data.title,
-          start_date: data.startDate,
-          end_date: data.endDate,
-          location: data.location,
-          notes: data.notes,
-          updated_by: currentUser?.id
-        })
-        .eq('id', showEditTrip.id)
-
-      if (error) throw error
-
-      setShowEditTrip(null)
-      fetchDashboardData()
-    } catch (error) {
-      console.error('Error updating trip:', error)
-    }
-  }
 
   // Get current user's RSVP for an event
   const getCurrentUserRsvp = (eventData: any, eventType: 'meetup' | 'trip') => {
@@ -232,250 +46,21 @@ export function DashboardContent() {
     return userRsvp ? { status: userRsvp.status } : null
   }
 
-  const fetchDashboardData = async () => {
-    console.log('Fetching dashboard data...')
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      setSetupRequired(true)
-      setLoading(false)
-      return
-    }
+  // Filter data for dashboard (only upcoming events)
+  const meetups = useMemo(() =>
+    allMeetups.filter(meetup => new Date(meetup.date_time) >= new Date()),
+    [allMeetups]
+  )
 
-    try {
-      // Fetch all upcoming events for unified calendar view
-      const [
-        { data: meetupsData },
-        { data: tripsData },
-        { data: timeAwayData }
-      ] = await Promise.all([
-        // All upcoming meetups
-        supabase
-          .from('meetups')
-          .select(`
-            *,
-            rsvps(member_id, status)
-          `)
-          .gte('date_time', new Date().toISOString())
-          .order('date_time', { ascending: true }),
+  const trips = useMemo(() =>
+    allTrips.filter(trip => new Date(trip.start_date) >= new Date()),
+    [allTrips]
+  )
 
-        // All upcoming trips
-        supabase
-          .from('trips')
-          .select(`
-            *,
-            rsvps(member_id, status)
-          `)
-          .gte('start_date', new Date().toISOString().split('T')[0])
-          .order('start_date', { ascending: true }),
-
-        // All upcoming time away
-        supabase
-          .from('time_away')
-          .select(`
-            *,
-            members!member_id(*)
-          `)
-          .gte('start_date', new Date().toISOString().split('T')[0])
-          .order('start_date', { ascending: true })
-      ])
-
-      // Combine and sort all events by date for calendar view
-      const allEvents: any[] = []
-
-      // Add meetups
-      meetupsData?.forEach(meetup => {
-        allEvents.push({
-          id: `meetup-${meetup.id}`,
-          type: 'meetup',
-          title: meetup.title,
-          date: new Date(meetup.date_time),
-          location: meetup.location,
-          notes: meetup.notes,
-          data: meetup,
-          created_by: meetup.created_by
-        })
-      })
-
-      // Add trips
-      tripsData?.forEach(trip => {
-        allEvents.push({
-          id: `trip-${trip.id}`,
-          type: 'trip',
-          title: trip.title,
-          date: new Date(trip.start_date),
-          location: trip.location,
-          notes: trip.notes,
-          data: trip,
-          created_by: trip.created_by
-        })
-      })
-
-      // Add time away
-      timeAwayData?.forEach(timeAway => {
-        allEvents.push({
-          id: `timeaway-${timeAway.id}`,
-          type: 'timeaway',
-          title: `${timeAway.members?.name || 'Unknown'} - ${timeAway.type || 'Time Away'}`,
-          date: new Date(timeAway.start_date),
-          location: null,
-          notes: timeAway.notes,
-          data: timeAway,
-          created_by: timeAway.created_by
-        })
-      })
-
-      // Set separate arrays for each section
-      console.log('Setting meetups data:', meetupsData?.length || 0, 'items')
-      console.log('Sample meetup RSVPs:', meetupsData?.[0]?.rsvps)
-      setMeetups(meetupsData || [])
-      setTrips(tripsData || [])
-      setTimeAway(timeAwayData || [])
-    } catch (error) {
-      console.error('Dashboard error:', error)
-      // Check if it's a table not found error
-      if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
-        const err = error as { code?: string; message?: string }
-        if (err.code === 'PGRST116' || err.message?.includes('relation') || err.message?.includes('does not exist')) {
-          console.error('Database tables not found. Please run the SQL setup in Supabase.')
-          setSetupRequired(true)
-        }
-      }
-    } finally {
-      setLoading(false)
-      console.log('Dashboard data fetch completed')
-    }
-  }
-
-  useEffect(() => {
-    fetchDashboardData()
-
-    // Set up real-time subscriptions for dashboard updates
-    const meetupsSubscription = supabase
-      .channel('dashboard_meetups')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'meetups' }, () => {
-        fetchDashboardData()
-      })
-      .subscribe()
-
-    const rsvpsSubscription = supabase
-      .channel('dashboard_rsvps')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rsvps' }, (payload) => {
-        console.log('RSVP change detected on dashboard:', payload)
-        fetchDashboardData()
-      })
-      .subscribe((status, err) => {
-        console.log('RSVP subscription status:', status, err)
-        if (err) console.error('RSVP subscription error:', err)
-      })
-
-    const tripsSubscription = supabase
-      .channel('dashboard_trips')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, () => {
-        fetchDashboardData()
-      })
-      .subscribe()
-
-    const timeAwaySubscription = supabase
-      .channel('dashboard_time_away')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'time_away' }, () => {
-        fetchDashboardData()
-      })
-      .subscribe()
-
-    return () => {
-      meetupsSubscription.unsubscribe()
-      rsvpsSubscription.unsubscribe()
-      tripsSubscription.unsubscribe()
-      timeAwaySubscription.unsubscribe()
-    }
-  }, [])
-
-  const handleCreateMeetup = async (data: any) => {
-    if (!currentUser) return
-
-    try {
-      const { error } = await supabase
-        .from('meetups')
-        .insert({
-          title: data.title,
-          date_time: data.dateTime,
-          location: data.location || null,
-          notes: data.notes || null,
-          created_by: currentUser.id,
-        })
-
-      if (error) {
-        console.error('Error creating meetup:', error)
-      } else {
-        setShowMeetupForm(false)
-        fetchDashboardData() // Refresh dashboard
-      }
-    } catch (error) {
-      console.error('Error creating meetup:', error)
-    }
-  }
-
-  const handleCreateTrip = async (data: any) => {
-    if (!currentUser) return
-
-    try {
-      const { error } = await supabase
-        .from('trips')
-        .insert({
-          title: data.title,
-          start_date: data.startDate,
-          end_date: data.endDate,
-          location: data.location || null,
-          notes: data.notes || null,
-          created_by: currentUser.id,
-        })
-
-      if (error) {
-        console.error('Error creating trip:', error)
-      } else {
-        setShowTripForm(false)
-        fetchDashboardData() // Refresh dashboard
-      }
-    } catch (error) {
-      console.error('Error creating trip:', error)
-    }
-  }
-
-  const handleCreateTimeAway = async (data: any) => {
-    if (!currentUser) return
-
-    console.log('Dashboard: Creating time away with data:', data)
-    console.log('Dashboard: Current user:', currentUser)
-
-    try {
-      const insertData = {
-        member_id: currentUser.id,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        type: data.type || null,
-        notes: data.notes || null,
-        created_by: currentUser.id,
-      }
-
-      console.log('Dashboard: Inserting data:', insertData)
-
-      const { data: result, error } = await supabase
-        .from('time_away')
-        .insert(insertData)
-        .select()
-
-      if (error) {
-        console.error('Dashboard: Error creating time away:', error)
-        console.error('Dashboard: Error details:', error.message, error.details, error.hint)
-      } else {
-        console.log('Dashboard: Time away created successfully:', result)
-        setShowTimeAwayForm(false)
-        fetchDashboardData() // Refresh dashboard
-      }
-    } catch (error) {
-      console.error('Dashboard: Exception creating time away:', error)
-    }
-  }
+  const timeAway = useMemo(() =>
+    allTimeAway.filter(ta => new Date(ta.start_date) >= new Date()),
+    [allTimeAway]
+  )
 
   if (loading) {
     return (
@@ -487,27 +72,160 @@ export function DashboardContent() {
     )
   }
 
+  if (setupRequired) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-6">
+        <div className="text-center py-12">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Setup Required</h2>
+          <p className="text-gray-600 mb-6">
+            Please run the SQL setup in your Supabase dashboard to create the necessary tables.
+          </p>
+          <div className="bg-gray-100 p-4 rounded-lg text-left text-sm">
+            <p className="font-mono text-xs">
+              Database tables not found. Please run the SQL setup in Supabase.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <LayoutShell onFabClick={() => setShowMeetupForm(true)}>
       <div className="pb-4">
-      <header className="mb-8">
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Pal Cal(ender)
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {currentUser ? `Welcome back, ${currentUser.name}!` : 'Track meetups, trips, and time away'}
-              </p>
-            </div>
+        <header className="mb-8">
+          <h1 className="text-2xl font-bold text-primary">Pal Cal(ender)</h1>
+          <p className="text-secondary mt-1">Track meetups, trips, and time away</p>
+        </header>
+
+        {/* Meetups Section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-primary">Meetups</h2>
           </div>
-        </div>
-      </header>
 
+          {meetups.length === 0 ? (
+            <div className="card-revolut p-8 text-center">
+              <Calendar className="w-12 h-12 text-muted mx-auto mb-4" />
+              <p className="text-secondary">No upcoming meetups</p>
+              <p className="text-muted text-sm mt-2">Create your first meetup!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {meetups.map((meetup) => (
+                <PlanCard
+                  key={meetup.id}
+                  title={meetup.title}
+                  date={new Date(meetup.date_time)}
+                  endDate={undefined}
+                  location={meetup.location}
+                  attendees={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                    const member = members.find(m => m.id === rsvp.member_id)
+                    return {
+                      id: rsvp.member_id,
+                      name: member?.name || 'Unknown',
+                      color: member?.color || '#F6A08B'
+                    }
+                  }) || []}
+                  onEdit={() => setShowEditMeetup(meetup)}
+                  onCardClick={() => window.location.href = `/meetups/${meetup.id}`}
+                >
+                  <RsvpButtons
+                    currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
+                    onRsvp={(status) => updateMeetupRsvp(meetup.id, status)}
+                  />
+                </PlanCard>
+              ))}
+            </div>
+          )}
+        </section>
 
+        {/* Trips Section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-primary">Trips</h2>
+          </div>
 
-      {/* Meetup Form Sheet */}
+          {trips.length === 0 ? (
+            <div className="card-revolut p-8 text-center">
+              <Plane className="w-12 h-12 text-muted mx-auto mb-4" />
+              <p className="text-secondary">No upcoming trips</p>
+              <p className="text-muted text-sm mt-2">Plan your next adventure!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {trips.map((trip) => (
+                <PlanCard
+                  key={trip.id}
+                  title={trip.title}
+                  date={new Date(trip.start_date)}
+                  endDate={new Date(trip.end_date)}
+                  location={trip.location}
+                  attendees={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                    const member = members.find(m => m.id === rsvp.member_id)
+                    return {
+                      id: rsvp.member_id,
+                      name: member?.name || 'Unknown',
+                      color: member?.color || '#F6A08B'
+                    }
+                  }) || []}
+                  onEdit={() => setShowEditTrip(trip)}
+                  onCardClick={() => window.location.href = `/trips/${trip.id}`}
+                >
+                  <RsvpButtons
+                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
+                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
+                  />
+                </PlanCard>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Time Away Section */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-primary">Time Away</h2>
+          </div>
+
+          {timeAway.length === 0 ? (
+            <div className="card-revolut p-8 text-center">
+              <Clock className="w-12 h-12 text-muted mx-auto mb-4" />
+              <p className="text-secondary">No upcoming time away</p>
+              <p className="text-muted text-sm mt-2">Share when you'll be traveling!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {timeAway.map((timeAwayEntry) => (
+                <div
+                  key={timeAwayEntry.id}
+                  className="card-revolut p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-primary">
+                        {timeAwayEntry.members?.name || 'Unknown'}
+                      </p>
+                      {timeAwayEntry.type && <p className="text-sm text-secondary">{timeAwayEntry.type}</p>}
+                      {timeAwayEntry.notes && <p className="text-sm text-secondary mt-1">{timeAwayEntry.notes}</p>}
+                    </div>
+                    <div className="text-right text-sm text-secondary">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        <span>
+                          {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* Create Meetup Modal */}
       <Sheet open={showMeetupForm} onOpenChange={setShowMeetupForm}>
         <SheetContent side="bottom" className="h-[90vh] p-0">
           <div className="p-6 pb-0">
@@ -517,14 +235,17 @@ export function DashboardContent() {
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             <MeetupForm
-              onSubmit={handleCreateMeetup}
+              onSubmit={async (data) => {
+                await createMeetup(data)
+                setShowMeetupForm(false)
+              }}
               onCancel={() => setShowMeetupForm(false)}
             />
           </div>
         </SheetContent>
       </Sheet>
 
-      {/* Trip Form Sheet */}
+      {/* Create Trip Modal */}
       <Sheet open={showTripForm} onOpenChange={setShowTripForm}>
         <SheetContent side="bottom" className="h-[90vh] p-0">
           <div className="p-6 pb-0">
@@ -534,14 +255,17 @@ export function DashboardContent() {
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             <TripForm
-              onSubmit={handleCreateTrip}
+              onSubmit={async (data) => {
+                await createTrip(data)
+                setShowTripForm(false)
+              }}
               onCancel={() => setShowTripForm(false)}
             />
           </div>
         </SheetContent>
       </Sheet>
 
-      {/* Time Away Form Sheet */}
+      {/* Create Time Away Modal */}
       <Sheet open={showTimeAwayForm} onOpenChange={setShowTimeAwayForm}>
         <SheetContent side="bottom" className="h-[90vh] p-0">
           <div className="p-6 pb-0">
@@ -551,263 +275,15 @@ export function DashboardContent() {
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             <TimeAwayForm
-              onSubmit={handleCreateTimeAway}
+              onSubmit={async (data) => {
+                await createTimeAway(data)
+                setShowTimeAwayForm(false)
+              }}
               onCancel={() => setShowTimeAwayForm(false)}
             />
           </div>
         </SheetContent>
       </Sheet>
-
-
-
-      {/* Meetups Section */}
-      <section className="mb-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Meetups</h2>
-
-        {meetups.length === 0 ? (
-          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No upcoming meetups</p>
-            <p className="text-gray-500 text-sm mt-2">Create your first meetup to get started!</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Group meetups by date */}
-            {(() => {
-              const meetupsByDate = meetups.reduce((groups: Record<string, any[]>, meetup) => {
-                const date = new Date(meetup.date_time).toDateString()
-                if (!groups[date]) {
-                  groups[date] = []
-                }
-                groups[date].push(meetup)
-                return groups
-              }, {} as Record<string, any[]>)
-
-              return Object.entries(meetupsByDate).map(([dateString, dateMeetups]) => {
-                const date = new Date(dateString)
-                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
-                const monthDay = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-
-                return (
-                  <div key={dateString} className="mb-6">
-                    <div className="flex items-center mb-4">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-lg flex items-center justify-center mr-3">
-                        <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                        {dayName}, {monthDay}
-                      </h3>
-                    </div>
-                    <div className="space-y-4">
-                      {dateMeetups.map((meetup: any) => (
-                        <div
-                          key={meetup.id}
-                          className="bg-white rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
-                          onClick={() => window.location.href = `/meetups/${meetup.id}`}
-                        >
-                          <div className="flex items-start">
-                            {/* Calendar Badge */}
-                            <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
-                              <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
-                                <span className="text-white text-[10px] font-bold">
-                                  {new Date(meetup.date_time).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
-                                </span>
-                              </div>
-                              <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
-                                <span className="text-gray-900 text-lg font-bold">
-                                  {new Date(meetup.date_time).getUTCDate()}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Content Block */}
-                            <div className="flex-1 min-w-0 mr-2">
-                              <h4 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                                {meetup.title}
-                              </h4>
-                              <p className="text-sm text-gray-600 mb-2">
-                                {formatDateTime(meetup.date_time)}
-                              </p>
-                              {meetup.location && (
-                                <div className="flex items-center text-sm text-gray-700 mb-2">
-                                  <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
-                                  <span className="truncate">{meetup.location}</span>
-                                </div>
-                              )}
-                              <AvatarStack
-                                avatars={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                                  const member = members.find(m => m.id === rsvp.member_id)
-                                  return {
-                                    id: rsvp.member_id,
-                                    name: member?.name || 'Unknown',
-                                    color: member?.color || '#F6A08B'
-                                  }
-                                }) || []}
-                                maxVisible={3}
-                              />
-                            </div>
-
-                            {/* Edit button */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setShowEditMeetup?.(meetup)
-                              }}
-                              className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
-                            >
-                              <Pencil className="w-3.5 h-3.5 text-gray-600" />
-                            </button>
-                          </div>
-
-                          {/* RSVP Buttons */}
-                          <div className="mt-3 pt-3 border-t border-gray-100">
-                            <RsvpButtons
-                              currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
-                              onRsvp={(status) => handleMeetupRsvp(meetup.id, status)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })
-            })()}
-          </div>
-        )}
-      </section>
-
-      {/* Trips Section */}
-      <section className="mb-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Trips</h2>
-
-        {trips.length === 0 ? (
-          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
-            <Plane className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No upcoming trips</p>
-            <p className="text-gray-500 text-sm mt-2">Plan your next adventure!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {trips.map((trip: any) => (
-              <div
-                key={trip.id}
-                className="bg-white rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
-                onClick={() => window.location.href = `/trips/${trip.id}`}
-              >
-                <div className="flex items-start">
-                  {/* Calendar Badge */}
-                  <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
-                    <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
-                                <span className="text-white text-[10px] font-bold">
-                                  {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
-                                </span>
-                    </div>
-                    <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
-                                <span className="text-gray-900 text-lg font-bold">
-                                  {new Date(trip.start_date).getUTCDate()}
-                                </span>
-                    </div>
-                  </div>
-
-                  {/* Content Block */}
-                  <div className="flex-1 min-w-0 mr-2">
-                    <h4 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                      {trip.title}
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {new Date(trip.start_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                      })} - {new Date(trip.end_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
-                    {trip.location && (
-                      <div className="flex items-center text-sm text-gray-700 mb-2">
-                        <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
-                        <span className="truncate">{trip.location}</span>
-                      </div>
-                    )}
-                    <AvatarStack
-                      avatars={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                        const member = members.find(m => m.id === rsvp.member_id)
-                        return {
-                          id: rsvp.member_id,
-                          name: member?.name || 'Unknown',
-                          color: member?.color || '#F6A08B'
-                        }
-                      }) || []}
-                      maxVisible={3}
-                    />
-                  </div>
-
-                  {/* Edit button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowEditTrip(trip)
-                    }}
-                    className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
-                  >
-                    <Pencil className="w-3.5 h-3.5 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* RSVP Buttons */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <RsvpButtons
-                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
-                    onRsvp={(status) => handleTripRsvp(trip.id, status)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Time Away Section */}
-      <section>
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Time Away</h2>
-
-        {timeAway.length === 0 ? (
-          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
-            <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No upcoming time away</p>
-            <p className="text-gray-500 text-sm mt-2">Share when you'll be traveling!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {timeAway.map((timeAwayEntry: any) => (
-              <div
-                key={timeAwayEntry.id}
-                className="bg-white rounded-3xl p-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-gray-900">
-                      {timeAwayEntry.members?.name || 'Unknown'}
-                    </p>
-                    {timeAwayEntry.type && <p className="text-sm text-gray-600">{timeAwayEntry.type}</p>}
-                    {timeAwayEntry.notes && <p className="text-sm text-gray-600 mt-1">{timeAwayEntry.notes}</p>}
-                  </div>
-                  <div className="text-right text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      <span>
-                        {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
 
       {/* Edit Meetup Modal */}
       <Sheet open={!!showEditMeetup} onOpenChange={() => setShowEditMeetup(null)}>
@@ -826,7 +302,10 @@ export function DashboardContent() {
                   location: showEditMeetup.location || '',
                   notes: showEditMeetup.notes || ''
                 }}
-                onSubmit={handleEditMeetup}
+                onSubmit={async (data) => {
+                  await updateMeetup(showEditMeetup.id, data)
+                  setShowEditMeetup(null)
+                }}
                 onCancel={() => setShowEditMeetup(null)}
               />
             )}
@@ -852,37 +331,16 @@ export function DashboardContent() {
                   location: showEditTrip.location || '',
                   notes: showEditTrip.notes || ''
                 }}
-                onSubmit={handleEditTrip}
+                onSubmit={async (data) => {
+                  await updateTrip(showEditTrip.id, data)
+                  setShowEditTrip(null)
+                }}
                 onCancel={() => setShowEditTrip(null)}
               />
             )}
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Setup Required State */}
-      {setupRequired && (
-        <div className="text-center py-12 px-4">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Database Setup Required</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            You need to run the database setup in your Supabase project.
-          </p>
-          <div className="bg-gray-50 p-4 rounded-lg text-left text-sm">
-            <p className="font-medium mb-2">Steps:</p>
-            <ol className="list-decimal list-inside space-y-1 text-gray-700">
-              <li>Go to your Supabase dashboard</li>
-              <li>Open the SQL Editor</li>
-              <li>Run the contents of <code className="bg-gray-200 px-1 rounded">supabase-setup.sql</code></li>
-              <li>Refresh this page</li>
-            </ol>
-          </div>
-        </div>
-      )}
-
-    </div>
     </LayoutShell>
   )
 }

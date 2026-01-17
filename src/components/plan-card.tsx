@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { MapPin, Pencil } from "lucide-react"
 import { DateBadge } from "./date-badge"
 import { AvatarStack } from "./avatar-stack"
@@ -16,6 +17,7 @@ interface PlanCardProps {
   }>
   onEdit?: () => void
   onCardClick?: () => void
+  children?: React.ReactNode
 }
 
 export function PlanCard({
@@ -25,7 +27,8 @@ export function PlanCard({
   location,
   attendees,
   onEdit,
-  onCardClick
+  onCardClick,
+  children
 }: PlanCardProps) {
   const formatTimeRange = (start: Date, end?: Date) => {
     const startTime = start.toLocaleTimeString('en-US', {
@@ -57,18 +60,18 @@ export function PlanCard({
   return (
     <div
       onClick={onCardClick}
-      className="bg-white rounded-[28px] p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer active:scale-[0.98] mb-4"
+      className="card-revolut card-revolut-hover cursor-pointer active:scale-[0.98] p-4 mb-3"
     >
       <div className="flex items-start">
-        {/* Calendar Badge */}
-        <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
-          <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">
+        {/* Calendar Badge - Keep existing feature */}
+        <div className="w-14 h-14 rounded-xl border-2 border-accent flex flex-col mr-4 flex-shrink-0">
+          <div className="bg-accent rounded-t-lg flex-1 flex items-center justify-center">
+            <span className="text-white text-xs font-semibold">
               {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
             </span>
           </div>
-          <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
-            <span className="text-gray-900 text-xl font-bold">
+          <div className="bg-card rounded-b-lg flex-1 flex items-center justify-center">
+            <span className="text-primary text-lg font-bold">
               {date.getDate()}
             </span>
           </div>
@@ -77,19 +80,19 @@ export function PlanCard({
         {/* Content Block */}
         <div className="flex-1 min-w-0 mr-3">
           {/* Title */}
-          <h3 className="text-2xl font-bold text-gray-900 mb-2 truncate">
+          <h3 className="text-lg font-semibold text-primary mb-1 truncate">
             {title}
           </h3>
 
           {/* Date and time */}
-          <p className="text-base text-gray-600 mb-3">
+          <p className="text-sm text-secondary mb-2">
             {formatDate(date)}, {formatTimeRange(date, endDate)}
           </p>
 
           {/* Location */}
           {location && (
-            <div className="flex items-center text-base text-gray-700 mb-4">
-              <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+            <div className="flex items-center text-sm text-secondary mb-3">
+              <MapPin className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
               <span className="truncate">{location}</span>
             </div>
           )}
@@ -98,15 +101,22 @@ export function PlanCard({
           <AvatarStack avatars={attendees} />
         </div>
 
+        {/* RSVP Buttons */}
+        {children && (
+          <div className="mt-3 pt-3 border-t border-border">
+            {children}
+          </div>
+        )}
+
         {/* Edit button */}
         <button
           onClick={(e) => {
             e.stopPropagation()
             onEdit?.()
           }}
-          className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
+          className="w-9 h-9 bg-border hover:bg-muted rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
         >
-          <Pencil className="w-4 h-4 text-gray-600" />
+          <Pencil className="w-4 h-4 text-secondary" />
         </button>
       </div>
     </div>

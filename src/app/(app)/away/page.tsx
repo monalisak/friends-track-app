@@ -200,15 +200,15 @@ export default function AwayPage() {
   return (
     <div className="max-w-md mx-auto px-4 py-6 pb-24">
       <header className="mb-8">
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+        <div className="card-revolut p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Time Away</h1>
-              <p className="text-gray-600 mt-1">Share when you're traveling</p>
+              <h1 className="text-xl font-semibold text-primary">Time Away</h1>
+              <p className="text-secondary mt-1">Share when you're traveling</p>
             </div>
             <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
                 <SheetTrigger asChild>
-                  <button className="bg-[#F04A23] text-white p-3 rounded-full hover:bg-[#E03F1F] transition-colors">
+                  <button className="bg-accent text-white p-3 rounded-full hover:bg-accent transition-colors opacity-80 hover:opacity-100">
                     <Plus className="w-5 h-5" />
                   </button>
                 </SheetTrigger>

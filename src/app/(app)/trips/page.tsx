@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Plane, Plus, Users, Trash2 } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
-import { supabase } from "@/utils/supabase"
+import { useData } from "@/contexts/data-context"
 import { TripForm } from "@/components/forms/trip-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
@@ -27,58 +27,13 @@ interface Trip {
 export default function TripsPage() {
   const router = useRouter()
   const { currentUser, members } = useUser()
-  const [trips, setTrips] = useState<Trip[]>([])
-  const [loading, setLoading] = useState(true)
+  const { trips: allTrips, loading, createTrip, updateTripRsvp, deleteTrip } = useData()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchTrips()
+  // Filter trips (all trips are shown on this page, no filtering needed)
+  const trips = useMemo(() => allTrips, [allTrips])
 
-    // Set up real-time subscriptions
-    const tripsSubscription = supabase
-      .channel('trips_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, () => {
-        fetchTrips()
-      })
-      .subscribe()
-
-    const rsvpsSubscription = supabase
-      .channel('trips_rsvps_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rsvps' }, () => {
-        fetchTrips()
-      })
-      .subscribe()
-
-    return () => {
-      tripsSubscription.unsubscribe()
-      rsvpsSubscription.unsubscribe()
-    }
-  }, [])
-
-  const fetchTrips = async () => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('trips')
-        .select(`
-          *,
-          rsvps(*)
-        `)
-        .gte('end_date', new Date().toISOString().split('T')[0])
-        .order('start_date', { ascending: true })
-
-      if (error) {
-        console.error('Error fetching trips:', error)
-      } else {
-        setTrips(data || [])
-      }
-    } catch (error) {
-      console.error('Error fetching trips:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const getUserRsvp = (trip: Trip) => {
     if (!currentUser) return null
@@ -103,84 +58,14 @@ export default function TripsPage() {
     return member?.color || '#6b7280'
   }
 
-  const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant' | null) => {
-    if (!currentUser) return
-
-    try {
-      let error = null
-
-      if (status === null) {
-        // Clear RSVP
-        const result = await supabase
-          .from('rsvps')
-          .delete()
-          .eq('trip_id', tripId)
-          .eq('member_id', currentUser.id)
-        error = result.error
-      } else {
-        // Update RSVP
-        const result = await supabase
-          .from('rsvps')
-          .upsert({
-            trip_id: tripId,
-            member_id: currentUser.id,
-            status,
-          })
-        error = result.error
-      }
-
-      if (error) {
-        console.error('Error updating RSVP:', error)
-      } else {
-        fetchTrips() // Refresh data
-      }
-    } catch (error) {
-      console.error('Error updating RSVP:', error)
-    }
-  }
-
   const handleCreateTrip = async (data: any) => {
-    if (!currentUser) return
-
-    try {
-      const { error } = await supabase
-        .from('trips')
-        .insert({
-          title: data.title,
-          start_date: data.startDate,
-          end_date: data.endDate,
-          location: data.location || null,
-          notes: data.notes || null,
-          created_by: currentUser.id,
-        })
-
-      if (error) {
-        console.error('Error creating trip:', error)
-      } else {
-        setShowCreateForm(false)
-        fetchTrips()
-      }
-    } catch (error) {
-      console.error('Error creating trip:', error)
-    }
+    await createTrip(data)
+    setShowCreateForm(false)
   }
 
   const handleDeleteTrip = async (tripId: string) => {
-    try {
-      const { error } = await supabase
-        .from('trips')
-        .delete()
-        .eq('id', tripId)
-
-      if (error) {
-        console.error('Error deleting trip:', error)
-      } else {
-        setDeleteConfirm(null)
-        fetchTrips()
-      }
-    } catch (error) {
-      console.error('Error deleting trip:', error)
-    }
+    await deleteTrip(tripId)
+    setDeleteConfirm(null)
   }
 
   if (loading) {
@@ -196,15 +81,15 @@ export default function TripsPage() {
   return (
     <div className="max-w-md mx-auto px-4 py-6 pb-24">
       <header className="mb-8">
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+        <div className="card-revolut p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Group Trips</h1>
-              <p className="text-gray-600 mt-1">Plan and organize trips together</p>
+              <h1 className="text-xl font-semibold text-primary">Group Trips</h1>
+              <p className="text-secondary mt-1">Plan and organize trips together</p>
             </div>
             <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
               <SheetTrigger asChild>
-            <button className="bg-[#F04A23] text-white p-3 rounded-full hover:bg-[#E03F1F] transition-colors">
+            <button className="bg-accent text-white p-3 rounded-full hover:bg-accent transition-colors opacity-80 hover:opacity-100">
               <Plus className="w-5 h-5" />
         </button>
           </SheetTrigger>
@@ -292,7 +177,7 @@ export default function TripsPage() {
                 {currentUser && (
                   <RsvpButtons
                     currentRsvp={userRsvp}
-                    onRsvp={(status) => handleRsvpUpdate(trip.id, status)}
+                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
                   />
                 )}
             </div>

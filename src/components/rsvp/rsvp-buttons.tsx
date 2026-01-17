@@ -61,13 +61,13 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
             e.stopPropagation() // Prevent card click navigation
             handleRsvp(status)
           }}
-          className={`flex items-center justify-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 active:scale-95 ${
+          className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-150 active:scale-95 ${
             selectedStatus === status
-              ? 'bg-[#F04A23] text-white shadow-sm'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-accent text-white shadow-sm'
+              : 'bg-accent-light text-accent hover:bg-accent hover:text-white'
           }`}
         >
-          <Icon className="w-4 h-4 mr-1.5" />
+          <Icon className="w-3.5 h-3.5 mr-1.5" />
           {label}
         </button>
       ))}

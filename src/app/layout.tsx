@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
 import { UserProvider } from "@/contexts/user-context";
+import { DataProvider } from "@/contexts/data-context";
 import { UserSelector } from "@/components/user-selector";
 
 const geistSans = Geist({
@@ -46,11 +47,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <UserSelector />
-          <div className="min-h-screen pb-20">
-        {children}
-          </div>
-          <BottomNav />
+          <DataProvider>
+            <UserSelector />
+            <div className="min-h-screen pb-20">
+              {children}
+            </div>
+            <BottomNav />
+          </DataProvider>
         </UserProvider>
       </body>
     </html>

@@ -19,9 +19,9 @@ export function BottomNav() {
   const { currentUser } = useUser()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border pb-safe">
       <div className="max-w-md mx-auto px-4">
-        <div className="flex items-center justify-between h-18">
+        <div className="flex items-center justify-between h-16">
           {navItems.map((item, index) => {
             const isActive = pathname === item.href || (pathname === "/" && item.href === "/dashboard")
             const Icon = item.icon
@@ -36,7 +36,7 @@ export function BottomNav() {
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full border-2 flex items-center justify-center overflow-hidden",
-                    isActive ? "border-gray-900" : "border-gray-300"
+                    isActive ? "border-primary" : "border-border"
                   )}>
                     {currentUser ? (
                       <div
@@ -46,7 +46,7 @@ export function BottomNav() {
                         {currentUser.name.charAt(0)}
                       </div>
                     ) : (
-                      <User className="w-4 h-4 text-gray-600" />
+                      <User className="w-4 h-4 text-secondary" />
                     )}
                   </div>
                 </Link>
@@ -61,13 +61,13 @@ export function BottomNav() {
               >
                 <div className={cn(
                   "relative",
-                  isActive ? "text-gray-900" : "text-gray-500"
+                  isActive ? "text-primary" : "text-secondary"
                 )}>
-                  {Icon && <Icon className="w-6 h-6" />}
+                  {Icon && <Icon className="w-5 h-5" />}
                 </div>
                 <span className={cn(
                   "text-xs mt-1",
-                  isActive ? "text-gray-900 font-medium" : "text-gray-500"
+                  isActive ? "text-primary font-medium" : "text-secondary"
                 )}>
                   {item.label}
                 </span>

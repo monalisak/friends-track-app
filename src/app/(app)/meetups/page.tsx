@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Calendar, MapPin, Users, Plus, Trash2 } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
-import { supabase } from "@/utils/supabase"
+import { useData } from "@/contexts/data-context"
 import { MeetupForm } from "@/components/forms/meetup-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
@@ -26,76 +26,32 @@ interface Meetup {
 export default function MeetupsPage() {
   const router = useRouter()
   const { currentUser, members } = useUser()
-  const [meetups, setMeetups] = useState<Meetup[]>([])
+  const { meetups: allMeetups, loading, createMeetup, updateMeetupRsvp, deleteMeetup } = useData()
   const [filter, setFilter] = useState<'upcoming' | 'past'>('upcoming')
-  const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchMeetups()
-
-    // Set up real-time subscriptions for meetups and RSVPs
-    const meetupsSubscription = supabase
-      .channel('meetups_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'meetups' }, () => {
-        fetchMeetups()
-      })
-      .subscribe()
-
-    const rsvpsSubscription = supabase
-      .channel('rsvps_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rsvps' }, () => {
-        fetchMeetups()
-      })
-      .subscribe()
-
-    return () => {
-      meetupsSubscription.unsubscribe()
-      rsvpsSubscription.unsubscribe()
+  // Filter meetups based on the selected filter
+  const meetups = useMemo(() => {
+    if (filter === 'upcoming') {
+      return allMeetups.filter(meetup => new Date(meetup.date_time) >= new Date())
+    } else {
+      return allMeetups.filter(meetup => new Date(meetup.date_time) < new Date())
     }
-  }, [filter])
+  }, [allMeetups, filter])
 
-  const fetchMeetups = async () => {
-    setLoading(true)
-    try {
-      let query = supabase
-        .from('meetups')
-        .select(`
-          *,
-          rsvps(*)
-        `)
-        .order('date_time', { ascending: filter === 'upcoming' })
 
-      if (filter === 'upcoming') {
-        query = query.gte('date_time', new Date().toISOString())
-      } else {
-        query = query.lt('date_time', new Date().toISOString())
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('Error fetching meetups:', error)
-      } else {
-        setMeetups(data || [])
-      }
-    } catch (error) {
-      console.error('Error fetching meetups:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getUserRsvp = (meetup: Meetup) => {
+  // Helper functions
+  const getUserRsvp = (meetup: any) => {
     if (!currentUser) return null
-    return meetup.rsvps.find(rsvp => rsvp.member_id === currentUser.id)
+    return meetup.rsvps.find((rsvp: any) => rsvp.member_id === currentUser.id)
   }
 
-  const getRsvpCounts = (meetup: Meetup) => {
+  const getRsvpCounts = (meetup: any) => {
     const counts = { going: 0, maybe: 0, cant: 0 }
-    meetup.rsvps.forEach(rsvp => {
-      counts[rsvp.status]++
+    meetup.rsvps.forEach((rsvp: any) => {
+      const status = rsvp.status as keyof typeof counts
+      counts[status]++
     })
     return counts
   }
@@ -105,83 +61,14 @@ export default function MeetupsPage() {
     return member?.name || 'Unknown'
   }
 
-  const handleRsvpUpdate = async (meetupId: string, status: 'going' | 'maybe' | 'cant' | null) => {
-    if (!currentUser) return
-
-    try {
-      let error = null
-
-      if (status === null) {
-        // Clear RSVP
-        const result = await supabase
-          .from('rsvps')
-          .delete()
-          .eq('meetup_id', meetupId)
-          .eq('member_id', currentUser.id)
-        error = result.error
-      } else {
-        // Update RSVP
-        const result = await supabase
-          .from('rsvps')
-          .upsert({
-            meetup_id: meetupId,
-            member_id: currentUser.id,
-            status,
-          })
-        error = result.error
-      }
-
-      if (error) {
-        console.error('Error updating RSVP:', error)
-      } else {
-        fetchMeetups() // Refresh data
-      }
-    } catch (error) {
-      console.error('Error updating RSVP:', error)
-    }
-  }
-
   const handleCreateMeetup = async (data: any) => {
-    if (!currentUser) return
-
-    try {
-      const { error } = await supabase
-        .from('meetups')
-        .insert({
-          title: data.title,
-          date_time: data.dateTime,
-          location: data.location || null,
-          notes: data.notes || null,
-          created_by: currentUser.id,
-        })
-
-      if (error) {
-        console.error('Error creating meetup:', error)
-      } else {
-        setShowCreateForm(false)
-        fetchMeetups()
-      }
-    } catch (error) {
-      console.error('Error creating meetup:', error)
-    }
+    await createMeetup(data)
+    setShowCreateForm(false)
   }
 
   const handleDeleteMeetup = async (meetupId: string) => {
-    try {
-      const { error } = await supabase
-        .from('meetups')
-        .delete()
-        .eq('id', meetupId)
-
-      if (error) {
-        console.error('Error deleting meetup:', error)
-      } else {
-        setDeleteConfirm(null)
-        fetchMeetups()
-      }
-    } catch (error) {
-      console.error('Error deleting meetup:', error)
-    }
+    await deleteMeetup(meetupId)
+    setDeleteConfirm(null)
   }
 
   if (loading) {
@@ -196,12 +83,12 @@ export default function MeetupsPage() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-6 pb-24">
-      <header className="mb-8">
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+      <header className="mb-6">
+        <div className="card-revolut p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Meetups</h1>
-              <p className="text-gray-600 mt-1">Plan and track group gatherings</p>
+              <h1 className="text-xl font-semibold text-primary">Meetups</h1>
+              <p className="text-secondary mt-1">Plan and track group gatherings</p>
             </div>
             <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
               <SheetTrigger asChild>
@@ -226,13 +113,13 @@ export default function MeetupsPage() {
       </header>
 
       {/* Filter Tabs */}
-      <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-1 mb-6 bg-accent-light p-1 rounded-lg">
         <button
           onClick={() => setFilter('upcoming')}
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
             filter === 'upcoming'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-card text-primary shadow-sm'
+              : 'text-secondary hover:text-primary'
           }`}
         >
           Upcoming
@@ -241,8 +128,8 @@ export default function MeetupsPage() {
           onClick={() => setFilter('past')}
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
             filter === 'past'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-card text-primary shadow-sm'
+              : 'text-secondary hover:text-primary'
           }`}
         >
           Past
@@ -328,7 +215,7 @@ export default function MeetupsPage() {
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <RsvpButtons
                       currentRsvp={userRsvp}
-                      onRsvp={(status) => handleRsvpUpdate(meetup.id, status)}
+                      onRsvp={(status) => updateMeetupRsvp(meetup.id, status)}
                     />
                   </div>
                 )}
