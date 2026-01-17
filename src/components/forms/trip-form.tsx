@@ -63,7 +63,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
@@ -73,7 +73,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
             value={formData.startDate}
             onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
             required
-            className="h-11"
+            className="h-11 w-full"
           />
         </div>
         <div>
@@ -86,7 +86,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
             onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             min={formData.startDate}
             required
-            className="h-11"
+            className="h-11 w-full"
           />
         </div>
       </div>

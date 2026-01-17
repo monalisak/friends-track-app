@@ -32,14 +32,24 @@ export default function TripsPage() {
   const [showEditTrip, setShowEditTrip] = useState<Trip | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  // Trips list (chronological)
-  const trips = useMemo(
-    () =>
-      [...(allTrips as any as Trip[])].sort(
-        (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-      ),
-    [allTrips]
-  )
+  // Trips list (chronological) + month grouping
+  const trips = useMemo(() => {
+    return [...(allTrips as any as Trip[])].sort(
+      (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+    )
+  }, [allTrips])
+
+  const tripsByMonth = useMemo(() => {
+    const groups = new Map<string, Trip[]>()
+    for (const trip of trips) {
+      const d = new Date(trip.start_date)
+      const label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      const list = groups.get(label) || []
+      list.push(trip)
+      groups.set(label, list)
+    }
+    return Array.from(groups.entries())
+  }, [trips])
 
 
   const getUserRsvp = (trip: Trip) => {
@@ -131,78 +141,87 @@ export default function TripsPage() {
             </p>
           </div>
         ) : (
-          trips.map((trip) => {
-            const userRsvp = getUserRsvp(trip)
-            const rsvpCounts = getRsvpCounts(trip)
+          tripsByMonth.map(([monthLabel, monthTrips]) => (
+            <div key={monthLabel} className="space-y-3">
+              <div className="px-1 pt-2">
+                <p className="text-sm font-semibold text-gray-500">{monthLabel}</p>
+              </div>
+              {monthTrips.map((trip) => {
+                const userRsvp = getUserRsvp(trip)
+                const rsvpCounts = getRsvpCounts(trip)
 
-            return (
-              <div
-                key={trip.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
-                onClick={() => router.push(`/trips/${trip.id}`)}
-              >
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{trip.title}</h3>
-                    {trip.location && <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{trip.location}</p>}
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
-                    </p>
+                return (
+                  <div
+                    key={trip.id}
+                    className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => router.push(`/trips/${trip.id}`)}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{trip.title}</h3>
+                        {trip.location && (
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{trip.location}</p>
+                        )}
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        !userRsvp
+                          ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
+                          : userRsvp.status === 'going'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : userRsvp.status === 'maybe'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {userRsvp ? userRsvp.status : 'Not responded'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
+                        <Users className="w-4 h-4 mr-1" />
+                        <span>
+                          {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Created by {getMemberName(trip.created_by)}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowEditTrip(trip)
+                          }}
+                          className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                          title="Edit trip"
+                        >
+                          <Pencil className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDeleteConfirm(trip.id)
+                          }}
+                          className="text-red-500 hover:text-red-700 p-1 rounded"
+                          title="Delete trip"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    {currentUser && (
+                      <RsvpButtons
+                        currentRsvp={userRsvp}
+                        onRsvp={(status) => updateTripRsvp(trip.id, status)}
+                      />
+                    )}
+                  </div>
+                )
+              })}
             </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    !userRsvp
-                      ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
-                      : userRsvp.status === 'going'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : userRsvp.status === 'maybe'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
-                    {userRsvp ? userRsvp.status : 'Not responded'}
-            </span>
-          </div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
-              <Users className="w-4 h-4 mr-1" />
-                    <span>
-                      {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
-            </span>
-          </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Created by {getMemberName(trip.created_by)}
-            </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowEditTrip(trip)
-                      }}
-                      className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
-                      title="Edit trip"
-                    >
-                      <Pencil className="w-4 h-4 text-gray-600" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setDeleteConfirm(trip.id)
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1 rounded"
-                      title="Delete trip"
-                    >
-                      <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-                {currentUser && (
-                  <RsvpButtons
-                    currentRsvp={userRsvp}
-                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
-                  />
-                )}
-            </div>
-            )
-          })
+          ))
         )}
           </div>
 

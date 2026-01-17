@@ -30,32 +30,25 @@ export function PlanCard({
   onCardClick,
   children
 }: PlanCardProps) {
-  const formatTimeRange = (start: Date, end?: Date) => {
-    const startTime = start.toLocaleTimeString('en-US', {
+  const formatTime = (d: Date) => {
+    return d.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     })
-
-    if (end) {
-      const endTime = end.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      })
-      return `${startTime} – ${endTime}`
-    }
-
-    return startTime
   }
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (d: Date) => {
+    return d.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     })
   }
+
+  const dateLine = endDate
+    ? `${formatDate(date)} – ${formatDate(endDate)}`
+    : `${formatDate(date)}, ${formatTime(date)}`
 
   return (
     <div
@@ -86,7 +79,7 @@ export function PlanCard({
             </h3>
 
             <p className="text-sm text-gray-600 mt-0.5 leading-snug">
-              {formatDate(date)}, {formatTimeRange(date, endDate)}
+              {dateLine}
             </p>
 
             {!!location?.trim() && (

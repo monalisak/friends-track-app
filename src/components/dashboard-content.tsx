@@ -61,6 +61,18 @@ export function DashboardContent() {
     [allTrips]
   )
 
+  const tripsByMonth = useMemo(() => {
+    const groups = new Map<string, any[]>()
+    for (const trip of trips as any[]) {
+      const d = new Date(trip.start_date)
+      const label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      const list = groups.get(label) || []
+      list.push(trip)
+      groups.set(label, list)
+    }
+    return Array.from(groups.entries())
+  }, [trips])
+
   const timeAway = useMemo(() =>
     allTimeAway
       .filter(ta => new Date(ta.start_date) >= new Date())
@@ -177,29 +189,36 @@ export function DashboardContent() {
             </div>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip) => (
-                <PlanCard
-                  key={trip.id}
-                  title={trip.title}
-                  date={new Date(trip.start_date)}
-                  endDate={new Date(trip.end_date)}
-                  location={trip.location}
-                  attendees={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                    const member = members.find(m => m.id === rsvp.member_id)
-                    return {
-                      id: rsvp.member_id,
-                      name: member?.name || 'Unknown',
-                      color: member?.color || '#F6A08B'
-                    }
-                  }) || []}
-                  onEdit={() => setShowEditTrip(trip)}
-                  onCardClick={() => window.location.href = `/trips/${trip.id}`}
-                >
-                  <RsvpButtons
-                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
-                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
-                  />
-                </PlanCard>
+              {tripsByMonth.map(([monthLabel, monthTrips]) => (
+                <div key={monthLabel} className="space-y-3">
+                  <div className="px-1 pt-2">
+                    <p className="text-sm font-semibold text-gray-500">{monthLabel}</p>
+                  </div>
+                  {monthTrips.map((trip: any) => (
+                    <PlanCard
+                      key={trip.id}
+                      title={trip.title}
+                      date={new Date(trip.start_date)}
+                      endDate={new Date(trip.end_date)}
+                      location={trip.location}
+                      attendees={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                        const member = members.find(m => m.id === rsvp.member_id)
+                        return {
+                          id: rsvp.member_id,
+                          name: member?.name || 'Unknown',
+                          color: member?.color || '#F6A08B'
+                        }
+                      }) || []}
+                      onEdit={() => setShowEditTrip(trip)}
+                      onCardClick={() => window.location.href = `/trips/${trip.id}`}
+                    >
+                      <RsvpButtons
+                        currentRsvp={getCurrentUserRsvp(trip, 'trip')}
+                        onRsvp={(status) => updateTripRsvp(trip.id, status)}
+                      />
+                    </PlanCard>
+                  ))}
+                </div>
               ))}
             </div>
           )}
