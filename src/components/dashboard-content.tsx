@@ -354,37 +354,51 @@ export function DashboardContent() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-6">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mona's Friends Tracker</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">
-          {currentUser ? `Hi ${currentUser.name}!` : 'Track meetups, trips, and time away'}
-        </p>
+      <header className="mb-8">
+        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 rounded-3xl p-8 shadow-xl border border-blue-100/50 dark:border-gray-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Pal Cal(ender)
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                {currentUser ? `Welcome back, ${currentUser.name}!` : 'Track meetups, trips, and time away'}
+              </p>
+            </div>
+            <div className="hidden sm:block">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Calendar className="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
 
 
       {/* Quick Actions */}
-      <section className="mb-6">
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-3 gap-4">
           <button
             onClick={() => setShowMeetupForm(true)}
-            className="bg-blue-600 text-white p-4 rounded-xl hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Plus className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Add Meetup</span>
+            <Calendar className="w-7 h-7 mx-auto mb-2" />
+            <span className="text-sm font-semibold">Add Meetup</span>
           </button>
           <button
             onClick={() => setShowTripForm(true)}
-            className="bg-green-600 text-white p-4 rounded-xl hover:bg-green-700 transition-colors"
+            className="bg-gradient-to-br from-emerald-500 to-green-600 text-white p-5 rounded-2xl hover:from-emerald-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Plus className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Add Trip</span>
+            <Plane className="w-7 h-7 mx-auto mb-2" />
+            <span className="text-sm font-semibold">Add Trip</span>
           </button>
           <button
             onClick={() => setShowTimeAwayForm(true)}
-            className="bg-purple-600 text-white p-4 rounded-xl hover:bg-purple-700 transition-colors"
+            className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-5 rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Plus className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Time Away</span>
+            <Clock className="w-7 h-7 mx-auto mb-2" />
+            <span className="text-sm font-semibold">Time Away</span>
           </button>
         </div>
       </section>
@@ -443,13 +457,19 @@ export function DashboardContent() {
 
 
       {/* Meetups Section */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meetups</h2>
+      <section className="mb-10">
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+            <Calendar className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Meetups</h2>
+        </div>
 
         {meetups.length === 0 ? (
-          <div className="text-center py-8">
-            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 dark:text-gray-300">No upcoming meetups</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming meetups</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Create your first meetup to get started!</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -470,15 +490,20 @@ export function DashboardContent() {
                 const monthDay = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
                 return (
-                  <div key={dateString}>
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
-                      {dayName}, {monthDay}
-                    </h3>
+                  <div key={dateString} className="mb-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-lg flex items-center justify-center mr-3">
+                        <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        {dayName}, {monthDay}
+                      </h3>
+                    </div>
                     <div className="space-y-3">
                       {dateMeetups.map((meetup: any) => (
                         <div
                           key={meetup.id}
-                          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                          className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 cursor-pointer hover:shadow-xl hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
                           <div className="flex items-start justify-between">
@@ -532,20 +557,26 @@ export function DashboardContent() {
       </section>
 
       {/* Trips Section */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trips</h2>
+      <section className="mb-10">
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+            <Plane className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Trips</h2>
+        </div>
 
         {trips.length === 0 ? (
-          <div className="text-center py-8">
-            <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 dark:text-gray-300">No upcoming trips</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+            <Plane className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming trips</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Plan your next adventure!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {trips.map((trip: any) => (
               <div
                 key={trip.id}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 cursor-pointer hover:shadow-xl hover:shadow-emerald-100/50 dark:hover:shadow-emerald-900/20 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
                 <div className="flex items-start justify-between">
@@ -590,19 +621,25 @@ export function DashboardContent() {
 
       {/* Time Away Section */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Time Away</h2>
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+            <Clock className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Time Away</h2>
+        </div>
 
         {timeAway.length === 0 ? (
-          <div className="text-center py-8">
-            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 dark:text-gray-300">No upcoming time away</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+            <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming time away</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Share when you'll be traveling!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {timeAway.map((timeAwayEntry: any) => (
               <div
                 key={timeAwayEntry.id}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 shadow-lg"
               >
                 <div className="flex items-center justify-between">
                   <div>

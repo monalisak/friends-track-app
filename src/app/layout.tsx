@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mona's Friends Tracker",
+  title: "Pal Cal(ender)",
   description: "Track meetups, trips, and time away with your friends",
   manifest: "/manifest.json",
   themeColor: "#3b82f6",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Mona's Friends Tracker",
+    title: "Pal Cal(ender)",
   },
 };
 

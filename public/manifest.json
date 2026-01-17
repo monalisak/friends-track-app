@@ -1,6 +1,6 @@
 {
-  "name": "Friend Track",
-  "short_name": "FriendTrack",
+  "name": "Pal Cal(ender)",
+  "short_name": "PalCal",
   "description": "Track meetups, trips, and time away with your friends",
   "start_url": "/",
   "display": "standalone",
