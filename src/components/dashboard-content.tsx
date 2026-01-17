@@ -46,19 +46,25 @@ export function DashboardContent() {
     return userRsvp ? { status: userRsvp.status } : null
   }
 
-  // Filter data for dashboard (only upcoming events)
+  // Filter and sort data for dashboard (only upcoming events, soonest first)
   const meetups = useMemo(() =>
-    allMeetups.filter(meetup => new Date(meetup.date_time) >= new Date()),
+    allMeetups
+      .filter(meetup => new Date(meetup.date_time) >= new Date())
+      .sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime()),
     [allMeetups]
   )
 
   const trips = useMemo(() =>
-    allTrips.filter(trip => new Date(trip.start_date) >= new Date()),
+    allTrips
+      .filter(trip => new Date(trip.start_date) >= new Date())
+      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()),
     [allTrips]
   )
 
   const timeAway = useMemo(() =>
-    allTimeAway.filter(ta => new Date(ta.start_date) >= new Date()),
+    allTimeAway
+      .filter(ta => new Date(ta.start_date) >= new Date())
+      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()),
     [allTimeAway]
   )
 
@@ -94,21 +100,19 @@ export function DashboardContent() {
     <LayoutShell onFabClick={() => setShowMeetupForm(true)}>
       <div className="pb-4">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-primary">Pal Cal(ender)</h1>
-          <p className="text-secondary mt-1">Track meetups, trips, and time away</p>
+          <h1 className="text-2xl font-bold text-gray-900">Pal Cal(ender)</h1>
+          <p className="text-gray-600 mt-1">Track meetups, trips, and time away</p>
         </header>
 
         {/* Meetups Section */}
         <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Meetups</h2>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Meetups</h2>
 
           {meetups.length === 0 ? (
             <div className="card-revolut p-8 text-center">
               <Calendar className="w-12 h-12 text-muted mx-auto mb-4" />
-              <p className="text-secondary">No upcoming meetups</p>
-              <p className="text-muted text-sm mt-2">Create your first meetup!</p>
+              <p className="text-gray-600">No upcoming meetups</p>
+              <p className="text-gray-500 text-sm mt-2">Create your first meetup!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -142,15 +146,13 @@ export function DashboardContent() {
 
         {/* Trips Section */}
         <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Trips</h2>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Trips</h2>
 
           {trips.length === 0 ? (
             <div className="card-revolut p-8 text-center">
               <Plane className="w-12 h-12 text-muted mx-auto mb-4" />
-              <p className="text-secondary">No upcoming trips</p>
-              <p className="text-muted text-sm mt-2">Plan your next adventure!</p>
+              <p className="text-gray-600">No upcoming trips</p>
+              <p className="text-gray-500 text-sm mt-2">Plan your next adventure!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -184,24 +186,22 @@ export function DashboardContent() {
 
         {/* Time Away Section */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Time Away</h2>
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Time Away</h2>
 
           {timeAway.length === 0 ? (
             <div className="card-revolut p-8 text-center">
               <Clock className="w-12 h-12 text-muted mx-auto mb-4" />
-              <p className="text-secondary">No upcoming time away</p>
-              <p className="text-muted text-sm mt-2">Share when you'll be traveling!</p>
+              <p className="text-gray-600">No upcoming time away</p>
+              <p className="text-gray-500 text-sm mt-2">Share when you'll be traveling!</p>
             </div>
           ) : (
             <div className="space-y-3">
               {timeAway.map((timeAwayEntry) => (
                 <div key={timeAwayEntry.id} className="card-revolut p-4">
-                  <p className="font-semibold text-primary">
+                  <p className="font-semibold text-gray-900">
                     {timeAwayEntry.members?.name || 'Unknown'}
                   </p>
-                  <p className="text-secondary">
+                  <p className="text-gray-600">
                     {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
                   </p>
                 </div>

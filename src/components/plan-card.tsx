@@ -71,7 +71,7 @@ export function PlanCard({
             </span>
           </div>
           <div className="bg-card rounded-b-lg flex-1 flex items-center justify-center">
-            <span className="text-primary text-lg font-bold">
+            <span className="text-gray-900 text-lg font-bold">
               {date.getDate()}
             </span>
           </div>
@@ -80,18 +80,18 @@ export function PlanCard({
         {/* Content Block */}
         <div className="flex-1 min-w-0 mr-3">
           {/* Title */}
-          <h3 className="text-lg font-semibold text-primary mb-1 truncate">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
             {title}
           </h3>
 
           {/* Date and time */}
-          <p className="text-sm text-secondary mb-2">
+          <p className="text-sm text-gray-600 mb-2">
             {formatDate(date)}, {formatTimeRange(date, endDate)}
           </p>
 
           {/* Location */}
           {location && (
-            <div className="flex items-center text-sm text-secondary mb-3">
+            <div className="flex items-center text-sm text-gray-600 mb-3">
               <MapPin className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
               <span className="truncate">{location}</span>
             </div>
