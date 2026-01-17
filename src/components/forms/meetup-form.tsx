@@ -40,9 +40,9 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Meetup Title *
         </label>
         <Input
@@ -55,7 +55,7 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Date & Time *
         </label>
         <Input
@@ -67,7 +67,7 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Location
         </label>
         <div className="relative">
@@ -83,11 +83,11 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Notes
         </label>
         <textarea
-          className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-3 border border-gray-200 rounded-xl bg-white/90 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(240,74,35,0.25)] focus:border-transparent resize-none"
           placeholder="Any additional details..."
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
@@ -95,19 +95,19 @@ export function MeetupForm({ onSubmit, onCancel, initialData }: MeetupFormProps)
         />
       </div>
 
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-3 pt-2">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1"
+          className="flex-1 bg-white/80 border-gray-200 hover:bg-white"
           disabled={loading}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="flex-1"
+          className="flex-1 bg-accent text-white hover:bg-accent/90"
           disabled={loading || !formData.title || !formData.dateTime}
         >
           {loading ? 'Creating...' : 'Create Meetup'}

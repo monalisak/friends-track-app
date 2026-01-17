@@ -48,9 +48,9 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 px-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Trip Title *
         </label>
         <Input
@@ -65,7 +65,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
           </label>
           <Input
@@ -77,7 +77,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
             End Date *
           </label>
           <Input
@@ -92,7 +92,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Location
         </label>
         <div className="relative">
@@ -108,11 +108,11 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Notes
         </label>
         <textarea
-          className="w-full px-3 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
+          className="w-full px-3 py-3 border border-gray-200 rounded-xl bg-white/90 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(240,74,35,0.25)] focus:border-transparent resize-none h-20"
           placeholder="Any additional details..."
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
@@ -120,19 +120,19 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
         />
       </div>
 
-      <div className="flex space-x-3 pt-6">
+      <div className="flex space-x-3 pt-2">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1 h-11"
+          className="flex-1 h-11 bg-white/80 border-gray-200 hover:bg-white"
           disabled={loading}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-11"
+          className="flex-1 h-11 bg-accent text-white hover:bg-accent/90"
           disabled={loading || !formData.title || !formData.startDate || !formData.endDate}
         >
           {loading ? 'Creating...' : 'Create Trip'}

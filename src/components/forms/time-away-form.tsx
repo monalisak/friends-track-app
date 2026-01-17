@@ -20,8 +20,6 @@ interface TimeAwayFormProps {
 }
 
 export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormProps) {
-  console.log('TimeAwayForm: Component initialized with onSubmit:', typeof onSubmit)
-
   const { currentUser, members } = useUser()
   const [formData, setFormData] = useState<TimeAwayFormData>({
     startDate: initialData?.startDate || '',
@@ -33,21 +31,15 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('TimeAwayForm: handleSubmit called')
-    console.log('TimeAwayForm: formData:', formData)
-
     if (!formData.startDate || !formData.endDate) {
-      console.log('TimeAwayForm: Validation failed - missing dates')
       return
     }
 
     setLoading(true)
-    console.log('TimeAwayForm: Calling onSubmit with:', formData)
     try {
       await onSubmit(formData)
-      console.log('TimeAwayForm: onSubmit completed successfully')
     } catch (error) {
-      console.error('TimeAwayForm: onSubmit threw error:', error)
+      console.error('TimeAwayForm submit error:', error)
     } finally {
       setLoading(false)
     }
@@ -61,10 +53,10 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
   ] as const
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 px-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
           </label>
           <Input
@@ -76,7 +68,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
             End Date *
           </label>
           <Input
@@ -91,7 +83,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
           Type
         </label>
         <Select
@@ -100,7 +92,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             setFormData(prev => ({ ...prev, type: value }))
           }
         >
-          <SelectTrigger className="h-11">
+          <SelectTrigger className="h-11 bg-white/90 border-gray-200 focus:ring-2 focus:ring-[rgba(240,74,35,0.25)]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -114,33 +106,32 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Notes
+        <label className="block text-xs font-semibold text-gray-600 mb-2">
+          Location / Notes
         </label>
         <textarea
-          className="w-full px-3 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-20"
-          placeholder="Any additional details..."
+          className="w-full px-3 py-3 border border-gray-200 rounded-xl bg-white/90 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(240,74,35,0.25)] focus:border-transparent resize-none h-20"
+          placeholder="e.g., Bali / Japan / Work trip (optional)"
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
           rows={3}
         />
       </div>
 
-      <div className="flex space-x-3 pt-6">
+      <div className="flex space-x-3 pt-2">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1 h-11"
+          className="flex-1 h-11 bg-white/80 border-gray-200 hover:bg-white"
           disabled={loading}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-11"
+          className="flex-1 h-11 bg-accent text-white hover:bg-accent/90"
           disabled={loading || !formData.startDate || !formData.endDate}
-          onClick={() => console.log('TimeAwayForm: Submit button clicked')}
         >
           {loading ? 'Adding...' : 'Add Time Away'}
         </Button>
