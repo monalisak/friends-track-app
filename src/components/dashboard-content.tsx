@@ -466,11 +466,11 @@ export function DashboardContent() {
                         {dayName}, {monthDay}
                       </h3>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {dateMeetups.map((meetup: any) => (
                         <div
                           key={meetup.id}
-                          className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                          className="bg-white rounded-3xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
                           <div className="flex items-start">
@@ -535,11 +535,11 @@ export function DashboardContent() {
             <p className="text-gray-500 text-sm mt-2">Plan your next adventure!</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {trips.map((trip: any) => (
               <div
                 key={trip.id}
-                className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                className="bg-white rounded-3xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
                 <div className="flex items-start">
@@ -594,11 +594,11 @@ export function DashboardContent() {
             <p className="text-gray-500 text-sm mt-2">Share when you'll be traveling!</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {timeAway.map((timeAwayEntry: any) => (
               <div
                 key={timeAwayEntry.id}
-                className="bg-white rounded-3xl p-5 shadow-sm"
+                className="bg-white rounded-3xl p-4 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div>
