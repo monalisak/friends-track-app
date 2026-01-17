@@ -112,8 +112,17 @@ export function DashboardContent() {
     <LayoutShell>
       <div className="pb-4">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Pal Cal(ender)</h1>
-          <p className="text-gray-600 mt-1">Track meetups, trips, and time away</p>
+          <div className="card-revolut p-6">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-accent" aria-hidden="true" />
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+                Pal Cal(ender)
+              </h1>
+            </div>
+            <p className="text-gray-600 mt-2 text-sm">
+              Track meetups, trips, and time away
+            </p>
+          </div>
           {/* Quick add actions */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             <button
