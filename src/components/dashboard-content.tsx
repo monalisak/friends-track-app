@@ -488,7 +488,12 @@ export function DashboardContent() {
                               </h4>
                               <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
                                 <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>{new Date(meetup.date_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                                <span>{(() => {
+                                  const d = new Date(meetup.date_time)
+                                  const hours = d.getHours()
+                                  const minutes = d.getMinutes()
+                                  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+                                })()}</span>
                               </div>
                               {meetup.location && (
                                 <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
