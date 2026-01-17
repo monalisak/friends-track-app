@@ -15,6 +15,11 @@ interface TimeAway {
   type?: 'Holiday' | 'Work' | 'Family' | 'Other'
   notes?: string
   created_by: string
+  members?: {
+    id: string
+    name: string
+    color: string
+  }
 }
 
 export default function AwayPage() {
@@ -166,15 +171,24 @@ export default function AwayPage() {
     }
   }
 
-  // Group entries by member
+  // Group entries by month (e.g. January 2026)
   const groupedEntries = timeAwayEntries.reduce((acc, entry) => {
-    const memberId = entry.member_id
-    if (!acc[memberId]) {
-      acc[memberId] = []
+    const monthKey = new Date(entry.start_date).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    })
+    if (!acc[monthKey]) {
+      acc[monthKey] = []
     }
-    acc[memberId].push(entry)
+    acc[monthKey].push(entry)
     return acc
   }, {} as Record<string, TimeAway[]>)
+
+  const groupedEntriesSorted = Object.entries(groupedEntries).sort(([aKey, aEntries], [bKey, bEntries]) => {
+    const aTime = new Date(aEntries[0]?.start_date).getTime()
+    const bTime = new Date(bEntries[0]?.start_date).getTime()
+    return aTime - bTime
+  })
 
   // Client-side logging only
   useEffect(() => {
@@ -254,9 +268,9 @@ export default function AwayPage() {
         </button>
       </div>
 
-      {/* Time Away by Member */}
+      {/* Time Away by Month */}
       <div className="space-y-6">
-        {Object.keys(groupedEntries).length === 0 ? (
+        {groupedEntriesSorted.length === 0 ? (
           <div className="text-center py-12">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -267,58 +281,50 @@ export default function AwayPage() {
             </p>
           </div>
         ) : (
-          Object.entries(groupedEntries).map(([memberId, entries]) => {
-            console.log(`Rendering member ${memberId} with ${entries.length} entries`)
-            return (
-            <section key={memberId}>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2"
-                  style={{ backgroundColor: getMemberColor(memberId) }}
-                >
-                  {getMemberName(memberId).charAt(0)}
-                </div>
-                {getMemberName(memberId)}
-                {memberId === currentUser?.id && (
-                  <span className="text-xs text-blue-600 ml-2">(You)</span>
-                )}
+          groupedEntriesSorted.map(([monthKey, entries]) => (
+            <section key={monthKey}>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                {monthKey}
               </h2>
               <div className="space-y-3">
-                {entries.map((entry) => (
-                  <div key={entry.id} className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {entry.type || 'Time Away'}
-                        </p>
-                        {entry.notes && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{entry.notes}</p>
-                        )}
-                </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="text-right text-sm text-gray-600 dark:text-gray-300">
-              <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
-                            <span>
-                              {new Date(entry.start_date).toLocaleDateString()} - {new Date(entry.end_date).toLocaleDateString()}
-                            </span>
-                </div>
-              </div>
-                        <button
-                          onClick={() => setDeleteConfirm(entry.id)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded"
-                          title="Delete time away"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-            </div>
-          </div>
-        </div>
-                ))}
+                {entries.map((entry) => {
+                  const name = entry.members?.name || getMemberName(entry.member_id)
+                  const location = (entry.notes || entry.type || '—') as string
+                  return (
+                    <div key={entry.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 dark:text-white truncate">
+                            {name}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                            {location}
+                          </p>
+                        </div>
+                        <div className="flex items-start space-x-3 flex-shrink-0">
+                          <div className="text-right text-sm text-gray-600 dark:text-gray-300">
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              <span>
+                                {new Date(entry.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(entry.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setDeleteConfirm(entry.id)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded"
+                            title="Delete time away"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </section>
-            )
-          })
+          ))
         )}
           </div>
 

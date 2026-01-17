@@ -198,12 +198,23 @@ export function DashboardContent() {
             <div className="space-y-3">
               {timeAway.map((timeAwayEntry) => (
                 <div key={timeAwayEntry.id} className="card-revolut p-4">
-                  <p className="font-semibold text-gray-900">
-                    {timeAwayEntry.members?.name || 'Unknown'}
-                  </p>
-                  <p className="text-gray-600">
-                    {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
-                  </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">
+                        {timeAwayEntry.members?.name || 'Unknown'}
+                      </p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {(timeAwayEntry.notes || timeAwayEntry.type || '—') as string}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm text-gray-600">
+                        {new Date(timeAwayEntry.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {' – '}
+                        {new Date(timeAwayEntry.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
