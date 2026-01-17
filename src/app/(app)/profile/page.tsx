@@ -1,271 +1,307 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useMemo, useState } from "react"
 import { useUser } from "@/contexts/user-context"
-import { supabase } from "@/utils/supabase"
-import { Calendar, MapPin, Users, Clock, ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { formatDateTime } from "@/lib/date-utils"
-
-interface Event {
-  id: string
-  type: 'meetup' | 'trip' | 'timeaway'
-  title: string
-  date: Date
-  location: string | null
-  notes?: string
-  rsvps?: any[]
-}
+import { useData } from "@/contexts/data-context"
+import { Calendar, Clock, Plane } from "lucide-react"
+import { PlanCard } from "@/components/plan-card"
+import { MEMBERS } from "@/lib/members"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { MeetupForm } from "@/components/forms/meetup-form"
+import { TripForm } from "@/components/forms/trip-form"
 
 export default function ProfilePage() {
   const { currentUser } = useUser()
-  const [events, setEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (currentUser) {
-      fetchUserEvents()
-    }
-  }, [currentUser])
-
-  const fetchUserEvents = async () => {
-    if (!currentUser) return
-
-    try {
-      // Fetch all events created by current user
-      const [
-        { data: meetupsData },
-        { data: tripsData },
-        { data: timeAwayData }
-      ] = await Promise.all([
-        // Meetups created by user
-        supabase
-          .from('meetups')
-          .select(`
-            *,
-            rsvps(*)
-          `)
-          .eq('created_by', currentUser.id)
-          .order('date_time', { ascending: false }),
-
-        // Trips created by user
-        supabase
-          .from('trips')
-          .select(`
-            *,
-            rsvps(*)
-          `)
-          .eq('created_by', currentUser.id)
-          .order('start_date', { ascending: false }),
-
-        // Time away created by user
-        supabase
-          .from('time_away')
-          .select(`
-            *,
-            members(*)
-          `)
-          .eq('created_by', currentUser.id)
-          .order('start_date', { ascending: false })
-      ])
-
-      // Combine and sort all events by date (newest first)
-      const allEvents: Event[] = []
-
-      // Add meetups
-      meetupsData?.forEach(meetup => {
-        allEvents.push({
-          id: `meetup-${meetup.id}`,
-          type: 'meetup',
-          title: meetup.title,
-          date: new Date(meetup.date_time),
-          location: meetup.location,
-          notes: meetup.notes,
-          rsvps: meetup.rsvps
-        })
-      })
-
-      // Add trips
-      tripsData?.forEach(trip => {
-        allEvents.push({
-          id: `trip-${trip.id}`,
-          type: 'trip',
-          title: trip.title,
-          date: new Date(trip.start_date),
-          location: trip.location,
-          notes: trip.notes,
-          rsvps: trip.rsvps
-        })
-      })
-
-      // Add time away
-      timeAwayData?.forEach(timeAway => {
-        allEvents.push({
-          id: `timeaway-${timeAway.id}`,
-          type: 'timeaway',
-          title: `${timeAway.members?.name || 'Unknown'} - ${timeAway.type || 'Time Away'}`,
-          date: new Date(timeAway.start_date),
-          location: null,
-          notes: timeAway.notes,
-          rsvps: []
-        })
-      })
-
-      // Sort by date (newest first)
-      allEvents.sort((a, b) => b.date.getTime() - a.date.getTime())
-      setEvents(allEvents)
-
-    } catch (error) {
-      console.error('Error fetching user events:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleBack = () => {
-    window.history.back()
-  }
+  const { meetups, trips, timeAway, loading, updateMeetup, updateTrip } = useData()
+  const [showEditMeetup, setShowEditMeetup] = useState<any>(null)
+  const [showEditTrip, setShowEditTrip] = useState<any>(null)
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="max-w-md mx-auto px-4 py-6 pb-24">
         <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-300">Please select a user first</p>
+          <p className="text-gray-600">Please select a user first</p>
         </div>
       </div>
     )
   }
 
+  const todayISO = new Date().toISOString().split("T")[0]
+
+  const meetupsCreated = useMemo(() => {
+    const list = (meetups as any[]).filter((m) => m.created_by === currentUser.id)
+    const upcoming = list
+      .filter((m) => new Date(m.date_time) >= new Date())
+      .sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
+    const past = list
+      .filter((m) => new Date(m.date_time) < new Date())
+      .sort((a, b) => new Date(b.date_time).getTime() - new Date(a.date_time).getTime())
+    return { upcoming, past }
+  }, [meetups, currentUser.id])
+
+  const getMemberMeta = (id: string) => MEMBERS.find((m) => m.id === id)
+
+  const tripsCreated = useMemo(() => {
+    const list = (trips as any[]).filter((t) => t.created_by === currentUser.id)
+    const upcoming = list
+      .filter((t) => t.end_date >= todayISO)
+      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+    const past = list
+      .filter((t) => t.end_date < todayISO)
+      .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+    return { upcoming, past }
+  }, [trips, currentUser.id, todayISO])
+
+  const timeAwayCreated = useMemo(() => {
+    const list = (timeAway as any[]).filter((ta) => ta.created_by === currentUser.id)
+    const upcoming = list
+      .filter((ta) => ta.end_date >= todayISO)
+      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+    const past = list
+      .filter((ta) => ta.end_date < todayISO)
+      .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+    return { upcoming, past }
+  }, [timeAway, currentUser.id, todayISO])
+
+  const totalCount =
+    meetupsCreated.upcoming.length +
+    meetupsCreated.past.length +
+    tripsCreated.upcoming.length +
+    tripsCreated.past.length +
+    timeAwayCreated.upcoming.length +
+    timeAwayCreated.past.length
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="p-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-
-          <div className="flex items-center space-x-3">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-medium"
-              style={{ backgroundColor: currentUser.color }}
-            >
-              {currentUser.name.charAt(0)}
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {currentUser.name}'s Events
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Events you've created
-              </p>
-            </div>
-          </div>
+    <div className="max-w-md mx-auto px-4 py-6 pb-32">
+      <header className="mb-6">
+        <div className="card-revolut p-6">
+          <h1 className="text-xl font-semibold text-gray-900">Your Created Events</h1>
+          <p className="text-gray-600 mt-1">
+            {totalCount} item{totalCount !== 1 ? "s" : ""} created by you
+          </p>
         </div>
-      </div>
+      </header>
 
-      {/* Content */}
-      <div className="p-4">
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-gray-600 dark:text-gray-300 mt-4">Loading your events...</p>
-          </div>
-        ) : events.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              No events created yet
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Events you create will appear here
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              {events.length} event{events.length !== 1 ? 's' : ''} created
-            </div>
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading…</p>
+        </div>
+      ) : totalCount === 0 ? (
+        <div className="text-center py-12">
+          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No events created yet</h3>
+          <p className="text-gray-600">Events you create will appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Meetups */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Meetups</h2>
+            {meetupsCreated.upcoming.length === 0 && meetupsCreated.past.length === 0 ? (
+              <div className="card-revolut p-5 text-gray-600">No meetups created.</div>
+            ) : (
+              <div className="space-y-3">
+                {meetupsCreated.upcoming.map((m) => (
+                  <PlanCard
+                    key={m.id}
+                    title={m.title}
+                    date={new Date(m.date_time)}
+                    location={m.location}
+                    attendees={(m.rsvps || [])
+                      .filter((r: any) => r.status === "going")
+                      .map((r: any) => {
+                        const meta = getMemberMeta(r.member_id)
+                        return {
+                          id: r.member_id,
+                          name: meta?.name || "Unknown",
+                          color: meta?.color || currentUser.color,
+                        }
+                      })}
+                    onEdit={() => setShowEditMeetup(m)}
+                    onCardClick={() => (window.location.href = `/meetups/${m.id}`)}
+                  />
+                ))}
 
-            {events.map((event) => {
-              const dayName = event.date.toLocaleDateString('en-US', { weekday: 'short' })
-              const monthDay = event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                {meetupsCreated.past.length > 0 && (
+                  <div className="pt-2">
+                    <p className="text-sm font-semibold text-gray-500 mb-2">Past</p>
+                    <div className="space-y-3">
+                      {meetupsCreated.past.map((m) => (
+                        <PlanCard
+                          key={m.id}
+                          title={m.title}
+                          date={new Date(m.date_time)}
+                          location={m.location}
+                          attendees={(m.rsvps || [])
+                            .filter((r: any) => r.status === "going")
+                            .map((r: any) => {
+                              const meta = getMemberMeta(r.member_id)
+                              return {
+                                id: r.member_id,
+                                name: meta?.name || "Unknown",
+                                color: meta?.color || currentUser.color,
+                              }
+                            })}
+                          onEdit={() => setShowEditMeetup(m)}
+                          onCardClick={() => (window.location.href = `/meetups/${m.id}`)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
 
-              return (
-                <div
-                  key={event.id}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => {
-                    if (event.type === 'meetup') {
-                      window.location.href = `/meetups/${event.id.split('-')[1]}`
-                    } else if (event.type === 'trip') {
-                      window.location.href = `/trips/${event.id.split('-')[1]}`
-                    }
-                  }}
-                >
-                  {/* Date Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-center">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{dayName}</div>
-                        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{monthDay}</div>
+          {/* Trips */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Trips</h2>
+            {tripsCreated.upcoming.length === 0 && tripsCreated.past.length === 0 ? (
+              <div className="card-revolut p-5 text-gray-600">No trips created.</div>
+            ) : (
+              <div className="space-y-3">
+                {tripsCreated.upcoming.map((t) => (
+                  <PlanCard
+                    key={t.id}
+                    title={t.title}
+                    date={new Date(t.start_date)}
+                    endDate={new Date(t.end_date)}
+                    location={t.location}
+                    attendees={(t.rsvps || [])
+                      .filter((r: any) => r.status === "going")
+                      .map((r: any) => {
+                        const meta = getMemberMeta(r.member_id)
+                        return {
+                          id: r.member_id,
+                          name: meta?.name || "Unknown",
+                          color: meta?.color || currentUser.color,
+                        }
+                      })}
+                    onEdit={() => setShowEditTrip(t)}
+                    onCardClick={() => (window.location.href = `/trips/${t.id}`)}
+                  />
+                ))}
+
+                {tripsCreated.past.length > 0 && (
+                  <div className="pt-2">
+                    <p className="text-sm font-semibold text-gray-500 mb-2">Past</p>
+                    <div className="space-y-3">
+                      {tripsCreated.past.map((t) => (
+                        <PlanCard
+                          key={t.id}
+                          title={t.title}
+                          date={new Date(t.start_date)}
+                          endDate={new Date(t.end_date)}
+                          location={t.location}
+                          attendees={(t.rsvps || [])
+                            .filter((r: any) => r.status === "going")
+                            .map((r: any) => {
+                              const meta = getMemberMeta(r.member_id)
+                              return {
+                                id: r.member_id,
+                                name: meta?.name || "Unknown",
+                                color: meta?.color || currentUser.color,
+                              }
+                            })}
+                          onEdit={() => setShowEditTrip(t)}
+                          onCardClick={() => (window.location.href = `/trips/${t.id}`)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Time Away */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Time Away</h2>
+            {timeAwayCreated.upcoming.length === 0 && timeAwayCreated.past.length === 0 ? (
+              <div className="card-revolut p-5 text-gray-600">No time away created.</div>
+            ) : (
+              <div className="space-y-3">
+                {[...timeAwayCreated.upcoming, ...timeAwayCreated.past].map((ta) => (
+                  <div key={ta.id} className="card-revolut p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">
+                          {ta.members?.name || currentUser.name}
+                        </p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {(ta.notes || ta.type || "—") as string}
+                        </p>
                       </div>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.type === 'meetup' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                        event.type === 'trip' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                      }`}>
-                        {event.type === 'meetup' ? 'Meetup' :
-                         event.type === 'trip' ? 'Trip' : 'Time Away'}
+                      <div className="text-right flex-shrink-0 text-sm text-gray-600">
+                        {new Date(ta.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        {" – "}
+                        {new Date(ta.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </div>
                     </div>
-
-                    {event.type !== 'timeaway' && event.rsvps && (
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                        <Users className="w-4 h-4 mr-1" />
-                        <span>{event.rsvps.filter((rsvp: any) => rsvp.status === 'going').length} going</span>
-                      </div>
-                    )}
                   </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
 
-                  {/* Event Content */}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2">
-                      {event.title}
-                    </h3>
-
-                    {event.location && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
-                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{event.location}</span>
-                      </div>
-                    )}
-
-                    {event.notes && (
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
-                        {event.notes}
-                      </p>
-                    )}
-
-                    {/* Time for meetups */}
-                    {event.type === 'meetup' && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mt-2">
-                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{event.date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
+      {/* Edit sheets */}
+      <Sheet open={!!showEditMeetup} onOpenChange={(open) => !open && setShowEditMeetup(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Meetup</SheetTitle>
+            </SheetHeader>
           </div>
-        )}
-      </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditMeetup && (
+              <MeetupForm
+                initialData={{
+                  title: showEditMeetup.title,
+                  dateTime: showEditMeetup.date_time,
+                  location: showEditMeetup.location || "",
+                  notes: showEditMeetup.notes || "",
+                }}
+                onSubmit={async (data) => {
+                  await updateMeetup(showEditMeetup.id, data)
+                  setShowEditMeetup(null)
+                }}
+                onCancel={() => setShowEditMeetup(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={!!showEditTrip} onOpenChange={(open) => !open && setShowEditTrip(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Trip</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditTrip && (
+              <TripForm
+                initialData={{
+                  title: showEditTrip.title,
+                  startDate: showEditTrip.start_date,
+                  endDate: showEditTrip.end_date,
+                  location: showEditTrip.location || "",
+                  notes: showEditTrip.notes || "",
+                }}
+                onSubmit={async (data) => {
+                  await updateTrip(showEditTrip.id, data)
+                  setShowEditTrip(null)
+                }}
+                onCancel={() => setShowEditTrip(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
