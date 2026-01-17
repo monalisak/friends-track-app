@@ -63,7 +63,7 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <div className="min-w-0">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
