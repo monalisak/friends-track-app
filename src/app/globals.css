@@ -51,15 +51,15 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+
+  body {
+    background: var(--background);
+  }
 }
 
 body {
-  /* Faint accent gradient (Revolut-style) */
-  background:
-    radial-gradient(1100px 520px at 20% -10%, rgba(240, 74, 35, 0.18) 0%, rgba(240, 74, 35, 0.00) 65%),
-    radial-gradient(1100px 520px at 90% 0%, rgba(240, 74, 35, 0.12) 0%, rgba(240, 74, 35, 0.00) 62%),
-    linear-gradient(180deg, rgba(240, 74, 35, 0.12) 0%, rgba(240, 74, 35, 0.06) 28%, var(--background) 70%, var(--background) 100%);
-  background-attachment: fixed;
+  /* Solid light accent background */
+  background: var(--accent-light);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
