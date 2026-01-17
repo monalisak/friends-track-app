@@ -195,18 +195,20 @@ export default function MeetupsPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6">
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meetups</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Plan and track group gatherings</p>
-        </div>
-        <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
-          <SheetTrigger asChild>
-            <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
-              <Plus className="w-5 h-5" />
-            </button>
-          </SheetTrigger>
+    <div className="max-w-md mx-auto px-4 py-6 pb-24">
+      <header className="mb-8">
+        <div className="bg-white rounded-3xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Meetups</h1>
+              <p className="text-gray-600 mt-1">Plan and track group gatherings</p>
+            </div>
+            <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
+              <SheetTrigger asChild>
+                <button className="bg-[#F04A23] text-white p-3 rounded-full hover:bg-[#E03F1F] transition-colors">
+                  <Plus className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh]">
             <SheetHeader>
               <SheetTitle>Create Meetup</SheetTitle>
@@ -219,6 +221,8 @@ export default function MeetupsPage() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
+        </div>
       </header>
 
       {/* Filter Tabs */}
@@ -268,60 +272,65 @@ export default function MeetupsPage() {
             return (
               <div
                 key={meetup.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
+                className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => router.push(`/meetups/${meetup.id}`)}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{meetup.title}</h3>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    !userRsvp
-                      ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
-                      : userRsvp.status === 'going'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : userRsvp.status === 'maybe'
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
-                    {userRsvp ? userRsvp.status : 'Not responded'}
-                  </span>
-                </div>
-                <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-1">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  <span>
-                    {formatDateTime(meetup.date_time)}
-                  </span>
-                </div>
-                {meetup.location && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span>{meetup.location}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
-                    <Users className="w-4 h-4 mr-1" />
-                    <span>
-                      {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Created by {getMemberName(meetup.created_by)}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{meetup.title}</h3>
+                    <div className="flex items-center text-gray-600 text-sm mb-2">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>
+                        {formatDateTime(meetup.date_time)}
+                      </span>
                     </div>
+                    {meetup.location && (
+                      <div className="flex items-center text-gray-600 text-sm mb-3">
+                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{meetup.location}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center text-gray-600 text-sm mb-3">
+                      <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>
+                        {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end space-y-2">
+                    <span className={`px-3 py-1 text-xs rounded-full font-medium ${
+                      !userRsvp
+                        ? 'bg-gray-100 text-gray-700'
+                        : userRsvp.status === 'going'
+                        ? 'bg-green-100 text-green-800'
+                        : userRsvp.status === 'maybe'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {userRsvp ? userRsvp.status : 'Not responded'}
+                    </span>
                     <button
-                      onClick={() => setDeleteConfirm(meetup.id)}
-                      className="text-red-500 hover:text-red-700 p-1 rounded"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDeleteConfirm(meetup.id)
+                      }}
+                      className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
                       title="Delete meetup"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-gray-600" />
                     </button>
                   </div>
                 </div>
+                <div className="text-xs text-gray-500 mb-4">
+                  Created by {getMemberName(meetup.created_by)}
+                </div>
                 {currentUser && (
-                  <RsvpButtons
-                    currentRsvp={userRsvp}
-                    onRsvp={(status) => handleRsvpUpdate(meetup.id, status)}
-                  />
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <RsvpButtons
+                      currentRsvp={userRsvp}
+                      onRsvp={(status) => handleRsvpUpdate(meetup.id, status)}
+                    />
+                  </div>
                 )}
               </div>
             )

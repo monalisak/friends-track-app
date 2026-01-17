@@ -10,6 +10,7 @@ import { TimeAwayForm } from "@/components/forms/time-away-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
 import { LayoutShell } from "@/components/layout-shell"
+import { PlanCard } from "@/components/plan-card"
 import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
@@ -372,33 +373,6 @@ export function DashboardContent() {
       </header>
 
 
-      {/* Quick Actions */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <button
-            onClick={() => setShowMeetupForm(true)}
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <Calendar className="w-7 h-7 mx-auto mb-2" />
-            <span className="text-sm font-semibold">Add Meetup</span>
-          </button>
-          <button
-            onClick={() => setShowTripForm(true)}
-            className="bg-gradient-to-br from-emerald-500 to-green-600 text-white p-5 rounded-2xl hover:from-emerald-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <Plane className="w-7 h-7 mx-auto mb-2" />
-            <span className="text-sm font-semibold">Add Trip</span>
-          </button>
-          <button
-            onClick={() => setShowTimeAwayForm(true)}
-            className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-5 rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <Clock className="w-7 h-7 mx-auto mb-2" />
-            <span className="text-sm font-semibold">Time Away</span>
-          </button>
-        </div>
-      </section>
 
       {/* Meetup Form Sheet */}
       <Sheet open={showMeetupForm} onOpenChange={setShowMeetupForm}>
@@ -500,10 +474,10 @@ export function DashboardContent() {
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                              <h4 className="text-lg font-bold text-gray-900 mb-2">
                                 {meetup.title}
                               </h4>
-                              <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                              <div className="flex items-center text-gray-600 text-sm mb-2">
                                 <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span>{(() => {
                                   const d = new Date(meetup.date_time)
@@ -513,25 +487,25 @@ export function DashboardContent() {
                                 })()}</span>
                               </div>
                               {meetup.location && (
-                                <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                <div className="flex items-center text-gray-600 text-sm mb-2">
                                   <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                                   <span>{meetup.location}</span>
                                 </div>
                               )}
                               {meetup.notes && (
-                                <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                                <p className="text-gray-600 text-sm line-clamp-2">
                                   {meetup.notes}
                                 </p>
                               )}
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 ml-4">
+                            <div className="flex items-center text-sm text-gray-600 ml-4">
                               <Users className="w-4 h-4 mr-1" />
                               <span>{meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
                             </div>
                           </div>
 
                           {/* RSVP Buttons */}
-                          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                          <div className="mt-4 pt-4 border-t border-gray-100">
                             <RsvpButtons
                               currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
                               onRsvp={(status) => handleMeetupRsvp(meetup.id, status)}
@@ -568,33 +542,33 @@ export function DashboardContent() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                    <h4 className="text-lg font-bold text-gray-900 mb-2">
                       {trip.title}
                     </h4>
-                    <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                    <div className="flex items-center text-gray-600 text-sm mb-2">
                       <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span>{new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}</span>
                     </div>
                     {trip.location && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                      <div className="flex items-center text-gray-600 text-sm mb-2">
                         <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span>{trip.location}</span>
                       </div>
                     )}
                     {trip.notes && (
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                      <p className="text-gray-600 text-sm line-clamp-2">
                         {trip.notes}
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 ml-4">
+                  <div className="flex items-center text-sm text-gray-600 ml-4">
                     <Users className="w-4 h-4 mr-1" />
                     <span>{trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
                   </div>
                 </div>
 
                 {/* RSVP Buttons */}
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                <div className="mt-4 pt-4 border-t border-gray-100">
                   <RsvpButtons
                     currentRsvp={getCurrentUserRsvp(trip, 'trip')}
                     onRsvp={(status) => handleTripRsvp(trip.id, status)}
@@ -625,13 +599,13 @@ export function DashboardContent() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-bold text-gray-900">
                       {timeAwayEntry.members?.name || 'Unknown'}
                     </p>
-                    {timeAwayEntry.type && <p className="text-sm text-gray-600 dark:text-gray-300">{timeAwayEntry.type}</p>}
-                    {timeAwayEntry.notes && <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{timeAwayEntry.notes}</p>}
+                    {timeAwayEntry.type && <p className="text-sm text-gray-600">{timeAwayEntry.type}</p>}
+                    {timeAwayEntry.notes && <p className="text-sm text-gray-600 mt-1">{timeAwayEntry.notes}</p>}
                   </div>
-                  <div className="text-right text-sm text-gray-600 dark:text-gray-300">
+                  <div className="text-right text-sm text-gray-600">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       <span>

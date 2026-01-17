@@ -198,28 +198,30 @@ export default function AwayPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6">
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Time Away</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Share when you're traveling</p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => {
-              console.log('Client-side: Manual refresh triggered')
-              fetchTimeAway()
-            }}
-            className="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
-          >
-            Refresh
-          </button>
-          <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
-            <SheetTrigger asChild>
-        <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
-          <Plus className="w-5 h-5" />
-        </button>
-            </SheetTrigger>
+    <div className="max-w-md mx-auto px-4 py-6 pb-24">
+      <header className="mb-8">
+        <div className="bg-white rounded-3xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Time Away</h1>
+              <p className="text-gray-600 mt-1">Share when you're traveling</p>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  console.log('Client-side: Manual refresh triggered')
+                  fetchTimeAway()
+                }}
+                className="bg-gray-600 text-white px-4 py-2 rounded-xl hover:bg-gray-700 transition-colors text-sm"
+              >
+                Refresh
+              </button>
+              <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
+                <SheetTrigger asChild>
+                  <button className="bg-[#F04A23] text-white p-3 rounded-full hover:bg-[#E03F1F] transition-colors">
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">
               <SheetHeader>
@@ -234,6 +236,7 @@ export default function AwayPage() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
         </div>
       </header>
 
