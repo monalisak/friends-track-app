@@ -34,9 +34,14 @@ export default function MeetupsPage() {
   // Filter meetups based on the selected filter
   const meetups = useMemo(() => {
     if (filter === 'upcoming') {
-      return allMeetups.filter(meetup => new Date(meetup.date_time) >= new Date())
+      return allMeetups
+        .filter(meetup => new Date(meetup.date_time) >= new Date())
+        .sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
     } else {
-      return allMeetups.filter(meetup => new Date(meetup.date_time) < new Date())
+      // Past: show most recent first (still chronological within "past" context)
+      return allMeetups
+        .filter(meetup => new Date(meetup.date_time) < new Date())
+        .sort((a, b) => new Date(b.date_time).getTime() - new Date(a.date_time).getTime())
     }
   }, [allMeetups, filter])
 
