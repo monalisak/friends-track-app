@@ -96,13 +96,12 @@ export function DashboardContent() {
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-primary">Pal Cal(ender)</h1>
           <p className="text-secondary mt-1">Track meetups, trips, and time away</p>
-          <p className="text-sm text-muted mt-2">Debug: {meetups.length} meetups, {trips.length} trips, {timeAway.length} time away</p>
         </header>
 
         {/* Meetups Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Meetups ({meetups.length})</h2>
+            <h2 className="text-lg font-semibold text-primary">Meetups</h2>
           </div>
 
           {meetups.length === 0 ? (
@@ -144,7 +143,7 @@ export function DashboardContent() {
         {/* Trips Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Trips ({trips.length})</h2>
+            <h2 className="text-lg font-semibold text-primary">Trips</h2>
           </div>
 
           {trips.length === 0 ? (
@@ -186,7 +185,7 @@ export function DashboardContent() {
         {/* Time Away Section */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Time Away ({timeAway.length})</h2>
+            <h2 className="text-lg font-semibold text-primary">Time Away</h2>
           </div>
 
           {timeAway.length === 0 ? (
