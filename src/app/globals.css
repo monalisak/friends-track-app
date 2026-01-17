@@ -56,9 +56,9 @@
 body {
   /* Faint accent gradient (Revolut-style) */
   background:
-    radial-gradient(900px 420px at 20% -10%, rgba(240, 74, 35, 0.10) 0%, rgba(240, 74, 35, 0.00) 60%),
-    radial-gradient(900px 420px at 90% 0%, rgba(240, 74, 35, 0.06) 0%, rgba(240, 74, 35, 0.00) 55%),
-    linear-gradient(180deg, rgba(240, 74, 35, 0.06) 0%, var(--background) 38%, var(--background) 100%);
+    radial-gradient(1100px 520px at 20% -10%, rgba(240, 74, 35, 0.18) 0%, rgba(240, 74, 35, 0.00) 65%),
+    radial-gradient(1100px 520px at 90% 0%, rgba(240, 74, 35, 0.12) 0%, rgba(240, 74, 35, 0.00) 62%),
+    linear-gradient(180deg, rgba(240, 74, 35, 0.12) 0%, rgba(240, 74, 35, 0.06) 28%, var(--background) 70%, var(--background) 100%);
   background-attachment: fixed;
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;

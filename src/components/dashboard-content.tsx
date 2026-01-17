@@ -114,7 +114,7 @@ export function DashboardContent() {
         <header className="mb-8">
           <div className="card-revolut p-6">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-accent" aria-hidden="true" />
+              <Calendar className="w-5 h-5 text-accent" aria-hidden="true" />
               <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
                 Pal Cal(ender)
               </h1>
