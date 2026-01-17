@@ -163,6 +163,7 @@ export function DashboardContent() {
                   key={meetup.id}
                   title={meetup.title}
                   date={new Date(meetup.date_time)}
+                  dateLine={formatDateTime(meetup.date_time)}
                   endDate={undefined}
                   location={meetup.location}
                   attendees={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {

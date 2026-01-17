@@ -2,13 +2,13 @@
 
 import React from "react"
 import { MapPin, Pencil } from "lucide-react"
-import { DateBadge } from "./date-badge"
 import { AvatarStack } from "./avatar-stack"
 
 interface PlanCardProps {
   title: string
   date: Date
   endDate?: Date
+  dateLine?: string
   location?: string
   attendees: Array<{
     id: string
@@ -24,31 +24,34 @@ export function PlanCard({
   title,
   date,
   endDate,
+  dateLine,
   location,
   attendees,
   onEdit,
   onCardClick,
   children
 }: PlanCardProps) {
-  const formatTime = (d: Date) => {
-    return d.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
-  const formatDate = (d: Date) => {
+  const formatDateUtc = (d: Date) => {
     return d.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC'
     })
   }
 
-  const dateLine = endDate
-    ? `${formatDate(date)} – ${formatDate(endDate)}`
-    : `${formatDate(date)}, ${formatTime(date)}`
+  const formatTimeUtc = (d: Date) => {
+    return d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC'
+    })
+  }
+
+  const computedDateLine = endDate
+    ? `${formatDateUtc(date)} – ${formatDateUtc(endDate)}`
+    : `${formatDateUtc(date)} • ${formatTimeUtc(date)}`
 
   return (
     <div
@@ -62,12 +65,14 @@ export function PlanCard({
           <div className="w-14 h-14 rounded-2xl border border-border flex flex-col flex-shrink-0 overflow-hidden">
             <div className="bg-accent flex-1 flex items-center justify-center">
               <span className="text-white text-[11px] font-semibold tracking-wide">
-                {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                {date
+                  .toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })
+                  .toUpperCase()}
               </span>
             </div>
             <div className="bg-card flex-1 flex items-center justify-center">
               <span className="text-gray-900 text-lg font-bold leading-none">
-                {date.getDate()}
+                {date.getUTCDate()}
               </span>
             </div>
           </div>
@@ -79,7 +84,7 @@ export function PlanCard({
             </h3>
 
             <p className="text-sm text-gray-600 mt-0.5 leading-snug">
-              {dateLine}
+              {dateLine ?? computedDateLine}
             </p>
 
             {!!location?.trim() && (

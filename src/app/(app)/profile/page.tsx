@@ -9,6 +9,7 @@ import { MEMBERS } from "@/lib/members"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { MeetupForm } from "@/components/forms/meetup-form"
 import { TripForm } from "@/components/forms/trip-form"
+import { formatDateTime } from "@/lib/date-utils"
 
 export default function ProfilePage() {
   const { currentUser } = useUser()
@@ -107,6 +108,7 @@ export default function ProfilePage() {
                     key={m.id}
                     title={m.title}
                     date={new Date(m.date_time)}
+                    dateLine={formatDateTime(m.date_time)}
                     location={m.location}
                     attendees={(m.rsvps || [])
                       .filter((r: any) => r.status === "going")
@@ -132,6 +134,7 @@ export default function ProfilePage() {
                           key={m.id}
                           title={m.title}
                           date={new Date(m.date_time)}
+                          dateLine={formatDateTime(m.date_time)}
                           location={m.location}
                           attendees={(m.rsvps || [])
                             .filter((r: any) => r.status === "going")
