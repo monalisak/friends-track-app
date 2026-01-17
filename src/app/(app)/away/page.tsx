@@ -291,31 +291,29 @@ export default function AwayPage() {
                   const name = entry.members?.name || getMemberName(entry.member_id)
                   const location = (entry.notes || entry.type || '—') as string
                   return (
-                    <div key={entry.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div key={entry.id} className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 dark:text-white truncate">
+                          <p className="text-lg font-bold text-gray-900 mb-1 truncate">
                             {name}
                           </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                          <p className="text-sm text-gray-600 truncate">
                             {location}
                           </p>
                         </div>
-                        <div className="flex items-start space-x-3 flex-shrink-0">
-                          <div className="text-right text-sm text-gray-600 dark:text-gray-300">
-                            <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              <span>
-                                {new Date(entry.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(entry.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </span>
-                            </div>
+                        <div className="flex flex-col items-end space-y-2 flex-shrink-0">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <span>
+                              {new Date(entry.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(entry.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
                           </div>
                           <button
                             onClick={() => setDeleteConfirm(entry.id)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded"
+                            className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
                             title="Delete time away"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 text-gray-600" />
                           </button>
                         </div>
                       </div>

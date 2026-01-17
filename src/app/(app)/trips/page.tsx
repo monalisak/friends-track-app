@@ -153,48 +153,44 @@ export default function TripsPage() {
                 return (
                   <div
                     key={trip.id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
+                    className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                     onClick={() => router.push(`/trips/${trip.id}`)}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{trip.title}</h3>
-                        {trip.location && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{trip.location}</p>
-                        )}
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">{trip.title}</h3>
+                        <p className="text-sm text-gray-600">
                           {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
                         </p>
-                      </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        !userRsvp
-                          ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
-                          : userRsvp.status === 'going'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : userRsvp.status === 'maybe'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      }`}>
-                        {userRsvp ? userRsvp.status : 'Not responded'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
-                        <Users className="w-4 h-4 mr-1" />
-                        <span>
-                          {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Created by {getMemberName(trip.created_by)}
+                        {trip.location && (
+                          <p className="text-sm text-gray-600 mt-1">{trip.location}</p>
+                        )}
+                        <div className="flex items-center text-gray-600 text-sm mt-3">
+                          <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span>
+                            {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
+                          </span>
                         </div>
+                      </div>
+
+                      <div className="flex flex-col items-end space-y-2">
+                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${
+                          !userRsvp
+                            ? 'bg-gray-100 text-gray-700'
+                            : userRsvp.status === 'going'
+                            ? 'bg-green-100 text-green-800'
+                            : userRsvp.status === 'maybe'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {userRsvp ? userRsvp.status : 'Not responded'}
+                        </span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             setShowEditTrip(trip)
                           }}
-                          className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                          className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
                           title="Edit trip"
                         >
                           <Pencil className="w-4 h-4 text-gray-600" />
@@ -204,18 +200,25 @@ export default function TripsPage() {
                             e.stopPropagation()
                             setDeleteConfirm(trip.id)
                           }}
-                          className="text-red-500 hover:text-red-700 p-1 rounded"
+                          className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
                           title="Delete trip"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 text-gray-600" />
                         </button>
                       </div>
                     </div>
+
+                    <div className="text-xs text-gray-500 mb-4">
+                      Created by {getMemberName(trip.created_by)}
+                    </div>
+
                     {currentUser && (
-                      <RsvpButtons
-                        currentRsvp={userRsvp}
-                        onRsvp={(status) => updateTripRsvp(trip.id, status)}
-                      />
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <RsvpButtons
+                          currentRsvp={userRsvp}
+                          onRsvp={(status) => updateTripRsvp(trip.id, status)}
+                        />
+                      </div>
                     )}
                   </div>
                 )
