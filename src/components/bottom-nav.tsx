@@ -21,7 +21,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border pb-safe">
       <div className="max-w-md mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-[76px]">
           {navItems.map((item, index) => {
             const isActive = pathname === item.href || (pathname === "/" && item.href === "/dashboard")
             const Icon = item.icon
@@ -32,7 +32,7 @@ export function BottomNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex flex-col items-center justify-center flex-1 py-2 relative"
+                  className="flex flex-col items-center justify-center flex-1 py-3 relative"
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full border-2 flex items-center justify-center overflow-hidden",
@@ -57,7 +57,7 @@ export function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center justify-center flex-1 py-2 relative"
+                className="flex flex-col items-center justify-center flex-1 py-3 relative"
               >
                 <div className={cn(
                   "relative",
