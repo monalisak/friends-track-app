@@ -11,6 +11,7 @@ export function SwipeNavigation() {
   const router = useRouter()
   const pathname = usePathname()
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null)
+  const isAnimating = useRef(false)
 
   useEffect(() => {
     const onTouchStart = (e: TouchEvent) => {
@@ -25,6 +26,7 @@ export function SwipeNavigation() {
     }
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (isAnimating.current) return
       const start = touchStart.current
       touchStart.current = null
       if (!start) return
@@ -53,7 +55,37 @@ export function SwipeNavigation() {
       const nextIdx = dx < 0 ? idx + 1 : idx - 1
       if (nextIdx < 0 || nextIdx >= tabs.length) return
 
-      router.push(tabs[nextIdx])
+      const dir = dx < 0 ? "left" : "right"
+      const nextHref = tabs[nextIdx]
+
+      // Best-effort animation: View Transitions API when available, otherwise a brief fade.
+      isAnimating.current = true
+      document.documentElement.dataset.swipeDir = dir
+
+      const startViewTransition = (document as any).startViewTransition as
+        | ((cb: () => void) => { finished: Promise<void> })
+        | undefined
+
+      if (typeof startViewTransition === "function") {
+        try {
+          const vt = startViewTransition(() => router.push(nextHref))
+          vt.finished.finally(() => {
+            isAnimating.current = false
+          })
+          return
+        } catch {
+          // fall through to fade fallback
+        }
+      }
+
+      document.documentElement.classList.add("swipe-fallback")
+      window.setTimeout(() => {
+        router.push(nextHref)
+      }, 80)
+      window.setTimeout(() => {
+        document.documentElement.classList.remove("swipe-fallback")
+        isAnimating.current = false
+      }, 420)
     }
 
     document.addEventListener("touchstart", onTouchStart, { passive: true })
