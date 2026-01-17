@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, MapPin, Users, Clock, Plus } from "lucide-react"
+import { Calendar, MapPin, Users, Clock, Plus, Plane } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { supabase } from "@/utils/supabase"
 import { MeetupForm } from "@/components/forms/meetup-form"
@@ -13,7 +13,9 @@ import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
   const { currentUser } = useUser()
-  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([])
+  const [meetups, setMeetups] = useState<any[]>([])
+  const [trips, setTrips] = useState<any[]>([])
+  const [timeAway, setTimeAway] = useState<any[]>([])
   const [setupRequired, setSetupRequired] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showMeetupForm, setShowMeetupForm] = useState(false)
@@ -194,9 +196,10 @@ export function DashboardContent() {
         })
       })
 
-      // Sort by date and take first 15 events for calendar view
-      allEvents.sort((a, b) => a.date.getTime() - b.date.getTime())
-      setUpcomingEvents(allEvents.slice(0, 15))
+      // Set separate arrays for each section
+      setMeetups(meetupsData || [])
+      setTrips(tripsData || [])
+      setTimeAway(timeAwayData || [])
     } catch (error) {
       console.error('Dashboard error:', error)
       // Check if it's a table not found error
@@ -439,111 +442,182 @@ export function DashboardContent() {
 
 
 
-      {/* Calendar View - All Upcoming Events */}
-      <section>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upcoming Events</h2>
+      {/* Meetups Section */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meetups</h2>
 
-        {upcomingEvents.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              No upcoming events
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Add a meetup or trip to get started!
-            </p>
+        {meetups.length === 0 ? (
+          <div className="text-center py-8">
+            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 dark:text-gray-300">No upcoming meetups</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {upcomingEvents.map((event) => {
-              const dayName = event.date.toLocaleDateString('en-US', { weekday: 'short' })
-              const monthDay = event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          <div className="space-y-6">
+            {/* Group meetups by date */}
+            {(() => {
+              const meetupsByDate = meetups.reduce((groups: Record<string, any[]>, meetup) => {
+                const date = new Date(meetup.date_time).toDateString()
+                if (!groups[date]) {
+                  groups[date] = []
+                }
+                groups[date].push(meetup)
+                return groups
+              }, {} as Record<string, any[]>)
 
-              return (
-                <div
-                  key={event.id}
-                  className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-md transition-shadow ${
-                    event.type === 'meetup' ? 'cursor-pointer' :
-                    event.type === 'trip' ? 'cursor-pointer' : ''
-                  }`}
-                  onClick={(e) => {
-                    // Only navigate if not clicking on RSVP buttons
-                    if (!e.defaultPrevented && (event.type === 'meetup' || event.type === 'trip')) {
-                      window.location.href = `/${event.type === 'meetup' ? 'meetups' : 'trips'}/${event.data.id}`
-                    }
-                  }}
-                >
-                  {/* Date Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-center">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{dayName}</div>
-                        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{monthDay}</div>
-                      </div>
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.type === 'meetup' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                        event.type === 'trip' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                      }`}>
-                        {event.type === 'meetup' ? 'Meetup' :
-                         event.type === 'trip' ? 'Trip' : 'Time Away'}
-                      </div>
-                    </div>
+              return Object.entries(meetupsByDate).map(([dateString, dateMeetups]) => {
+                const date = new Date(dateString)
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long' })
+                const monthDay = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
-                    {event.type !== 'timeaway' && (
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                        <Users className="w-4 h-4 mr-1" />
-                        <span>{event.data.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Event Content */}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2">
-                      {event.title}
+                return (
+                  <div key={dateString}>
+                    <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">
+                      {dayName}, {monthDay}
                     </h3>
+                    <div className="space-y-3">
+                      {dateMeetups.map((meetup: any) => (
+                        <div
+                          key={meetup.id}
+                          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => window.location.href = `/meetups/${meetup.id}`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                                {meetup.title}
+                              </h4>
+                              <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span>{new Date(meetup.date_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                              </div>
+                              {meetup.location && (
+                                <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <span>{meetup.location}</span>
+                                </div>
+                              )}
+                              {meetup.notes && (
+                                <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                                  {meetup.notes}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 ml-4">
+                              <Users className="w-4 h-4 mr-1" />
+                              <span>{meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
+                            </div>
+                          </div>
 
-                    {event.location && (
+                          {/* RSVP Buttons */}
+                          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <RsvpButtons
+                              currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
+                              onRsvp={(status) => handleMeetupRsvp(meetup.id, status)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })
+            })()}
+          </div>
+        )}
+      </section>
+
+      {/* Trips Section */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trips</h2>
+
+        {trips.length === 0 ? (
+          <div className="text-center py-8">
+            <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 dark:text-gray-300">No upcoming trips</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {trips.map((trip: any) => (
+              <div
+                key={trip.id}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => window.location.href = `/trips/${trip.id}`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                      {trip.title}
+                    </h4>
+                    <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>{new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}</span>
+                    </div>
+                    {trip.location && (
                       <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mb-2">
                         <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{event.location}</span>
+                        <span>{trip.location}</span>
                       </div>
                     )}
-
-                    {event.notes && (
+                    {trip.notes && (
                       <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
-                        {event.notes}
+                        {trip.notes}
                       </p>
                     )}
-
-                    {/* Time for meetups */}
-                    {event.type === 'meetup' && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mt-2">
-                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{event.date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
-                      </div>
-                    )}
-
-                    {/* RSVP Buttons for meetups and trips */}
-                    {(event.type === 'meetup' || event.type === 'trip') && (
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                        <RsvpButtons
-                          currentRsvp={getCurrentUserRsvp(event.data, event.type)}
-                          onRsvp={(status) => {
-                            if (event.type === 'meetup') {
-                              handleMeetupRsvp(event.data.id, status)
-                            } else if (event.type === 'trip') {
-                              handleTripRsvp(event.data.id, status)
-                            }
-                          }}
-                        />
-                      </div>
-                    )}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 ml-4">
+                    <Users className="w-4 h-4 mr-1" />
+                    <span>{trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
                   </div>
                 </div>
-              )
-            })}
+
+                {/* RSVP Buttons */}
+                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <RsvpButtons
+                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
+                    onRsvp={(status) => handleTripRsvp(trip.id, status)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Time Away Section */}
+      <section>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Time Away</h2>
+
+        {timeAway.length === 0 ? (
+          <div className="text-center py-8">
+            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 dark:text-gray-300">No upcoming time away</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {timeAway.map((timeAwayEntry: any) => (
+              <div
+                key={timeAwayEntry.id}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {timeAwayEntry.members?.name || 'Unknown'}
+                    </p>
+                    {timeAwayEntry.type && <p className="text-sm text-gray-600 dark:text-gray-300">{timeAwayEntry.type}</p>}
+                    {timeAwayEntry.notes && <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{timeAwayEntry.notes}</p>}
+                  </div>
+                  <div className="text-right text-sm text-gray-600 dark:text-gray-300">
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1" />
+                      <span>
+                        {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
