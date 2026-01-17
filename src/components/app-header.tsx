@@ -28,7 +28,12 @@ export function AppHeader() {
             {currentUser.name.charAt(0)}
           </div>
           <div>
-            <p className="text-sm font-medium">You: {currentUser.name}</p>
+            <button
+              onClick={() => window.location.href = '/profile'}
+              className="text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-2 py-1 -mx-2 -my-1 transition-colors"
+            >
+              <p className="text-sm font-medium">You: {currentUser.name}</p>
+            </button>
           </div>
         </div>
 
