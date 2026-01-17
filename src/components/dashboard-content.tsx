@@ -22,6 +22,8 @@ export function DashboardContent() {
   const [timeAway, setTimeAway] = useState<any[]>([])
   const [setupRequired, setSetupRequired] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showEditMeetup, setShowEditMeetup] = useState<any>(null)
+  const [showEditTrip, setShowEditTrip] = useState<any>(null)
   const [showMeetupForm, setShowMeetupForm] = useState(false)
   const [showTripForm, setShowTripForm] = useState(false)
   const [showTimeAwayForm, setShowTimeAwayForm] = useState(false)
@@ -98,6 +100,51 @@ export function DashboardContent() {
       }
     } catch (error) {
       console.error('Error updating trip RSVP:', error)
+    }
+  }
+
+  const handleEditMeetup = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('meetups')
+        .update({
+          title: data.title,
+          date_time: data.dateTime,
+          location: data.location,
+          notes: data.notes,
+          updated_by: currentUser?.id
+        })
+        .eq('id', showEditMeetup.id)
+
+      if (error) throw error
+
+      setShowEditMeetup(null)
+      fetchDashboardData()
+    } catch (error) {
+      console.error('Error updating meetup:', error)
+    }
+  }
+
+  const handleEditTrip = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('trips')
+        .update({
+          title: data.title,
+          start_date: data.startDate,
+          end_date: data.endDate,
+          location: data.location,
+          notes: data.notes,
+          updated_by: currentUser?.id
+        })
+        .eq('id', showEditTrip.id)
+
+      if (error) throw error
+
+      setShowEditTrip(null)
+      fetchDashboardData()
+    } catch (error) {
+      console.error('Error updating trip:', error)
     }
   }
 
@@ -471,34 +518,33 @@ export function DashboardContent() {
                       {dateMeetups.map((meetup: any) => (
                         <div
                           key={meetup.id}
-                          className="bg-white rounded-[28px] p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                          className="bg-white rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
                           <div className="flex items-start">
                             {/* Calendar Badge */}
-                            <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
-                              <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">
+                            <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
+                              <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
+                                <span className="text-white text-[10px] font-bold">
                                   {new Date(meetup.date_time).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                                 </span>
                               </div>
-                              <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
-                                <span className="text-gray-900 text-xl font-bold">
+                              <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
+                                <span className="text-gray-900 text-lg font-bold">
                                   {new Date(meetup.date_time).getDate()}
                                 </span>
                               </div>
                             </div>
 
                             {/* Content Block */}
-                            <div className="flex-1 min-w-0 mr-3">
-                              <h4 className="text-2xl font-bold text-gray-900 mb-2 truncate">
+                            <div className="flex-1 min-w-0 mr-2">
+                              <h4 className="text-lg font-bold text-gray-900 mb-1 truncate">
                                 {meetup.title}
                               </h4>
-                              <p className="text-base text-gray-600 mb-3">
+                              <p className="text-sm text-gray-600 mb-2">
                                 {new Date(meetup.date_time).toLocaleDateString('en-US', {
                                   month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
+                                  day: 'numeric'
                                 })}, {(() => {
                                   const d = new Date(meetup.date_time)
                                   const hours = d.getHours()
@@ -509,9 +555,9 @@ export function DashboardContent() {
                                 })()}
                               </p>
                               {meetup.location && (
-                                <div className="flex items-center text-base text-gray-700 mb-4">
-                                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                                  <span>{meetup.location}</span>
+                                <div className="flex items-center text-sm text-gray-700 mb-2">
+                                  <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                                  <span className="truncate">{meetup.location}</span>
                                 </div>
                               )}
                               <AvatarStack
@@ -531,16 +577,16 @@ export function DashboardContent() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                window.location.href = `/meetups/${meetup.id}`
+                                setShowEditMeetup?.(meetup)
                               }}
-                              className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
+                              className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
                             >
-                              <Pencil className="w-4 h-4 text-gray-600" />
+                              <Pencil className="w-3.5 h-3.5 text-gray-600" />
                             </button>
                           </div>
 
                           {/* RSVP Buttons */}
-                          <div className="mt-5 pt-4 border-t border-gray-100">
+                          <div className="mt-3 pt-3 border-t border-gray-100">
                             <RsvpButtons
                               currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
                               onRsvp={(status) => handleMeetupRsvp(meetup.id, status)}
@@ -572,30 +618,30 @@ export function DashboardContent() {
             {trips.map((trip: any) => (
               <div
                 key={trip.id}
-                className="bg-white rounded-[28px] p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                className="bg-white rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
                 <div className="flex items-start">
                   {/* Calendar Badge */}
-                  <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
-                    <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">
+                  <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
+                    <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
+                      <span className="text-white text-[10px] font-bold">
                         {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                       </span>
                     </div>
-                    <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
-                      <span className="text-gray-900 text-xl font-bold">
+                    <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
+                      <span className="text-gray-900 text-lg font-bold">
                         {new Date(trip.start_date).getDate()}
                       </span>
                     </div>
                   </div>
 
                   {/* Content Block */}
-                  <div className="flex-1 min-w-0 mr-3">
-                    <h4 className="text-2xl font-bold text-gray-900 mb-2 truncate">
+                  <div className="flex-1 min-w-0 mr-2">
+                    <h4 className="text-lg font-bold text-gray-900 mb-1 truncate">
                       {trip.title}
                     </h4>
-                    <p className="text-base text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 mb-2">
                       {new Date(trip.start_date).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric'
@@ -606,9 +652,9 @@ export function DashboardContent() {
                       })}
                     </p>
                     {trip.location && (
-                      <div className="flex items-center text-base text-gray-700 mb-4">
-                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{trip.location}</span>
+                      <div className="flex items-center text-sm text-gray-700 mb-2">
+                        <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                        <span className="truncate">{trip.location}</span>
                       </div>
                     )}
                     <AvatarStack
@@ -628,16 +674,16 @@ export function DashboardContent() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      window.location.href = `/trips/${trip.id}`
+                      setShowEditTrip(trip)
                     }}
-                    className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
+                    className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
                   >
-                    <Pencil className="w-4 h-4 text-gray-600" />
+                    <Pencil className="w-3.5 h-3.5 text-gray-600" />
                   </button>
                 </div>
 
                 {/* RSVP Buttons */}
-                <div className="mt-5 pt-4 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-100">
                   <RsvpButtons
                     currentRsvp={getCurrentUserRsvp(trip, 'trip')}
                     onRsvp={(status) => handleTripRsvp(trip.id, status)}
@@ -688,6 +734,57 @@ export function DashboardContent() {
           </div>
         )}
       </section>
+
+      {/* Edit Meetup Modal */}
+      <Sheet open={!!showEditMeetup} onOpenChange={() => setShowEditMeetup(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Meetup</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditMeetup && (
+              <MeetupForm
+                initialData={{
+                  title: showEditMeetup.title,
+                  dateTime: showEditMeetup.date_time,
+                  location: showEditMeetup.location || '',
+                  notes: showEditMeetup.notes || ''
+                }}
+                onSubmit={handleEditMeetup}
+                onCancel={() => setShowEditMeetup(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Edit Trip Modal */}
+      <Sheet open={!!showEditTrip} onOpenChange={() => setShowEditTrip(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Trip</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditTrip && (
+              <TripForm
+                initialData={{
+                  title: showEditTrip.title,
+                  startDate: showEditTrip.start_date,
+                  endDate: showEditTrip.end_date,
+                  location: showEditTrip.location || '',
+                  notes: showEditTrip.notes || ''
+                }}
+                onSubmit={handleEditTrip}
+                onCancel={() => setShowEditTrip(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Setup Required State */}
       {setupRequired && (
