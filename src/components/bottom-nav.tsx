@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Calendar, MessageCircle, Users, User } from "lucide-react"
+import { Home, Calendar, Plane, Clock, User } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/meetups", label: "Meetups", icon: Calendar },
-  { href: "/trips", label: "Trips", icon: Users },
-  { href: "/away", label: "Away", icon: MessageCircle },
+  { href: "/trips", label: "Trips", icon: Plane },
+  { href: "/away", label: "Away", icon: Clock },
   { href: "/profile", label: "Profile", icon: null }, // Profile will use avatar
 ]
 
