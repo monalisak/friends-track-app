@@ -216,9 +216,9 @@ export default function AwayPage() {
           </button>
           <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
             <SheetTrigger asChild>
-              <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
-                <Plus className="w-5 h-5" />
-              </button>
+        <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
+          <Plus className="w-5 h-5" />
+        </button>
             </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">
@@ -301,16 +301,16 @@ export default function AwayPage() {
                         {entry.notes && (
                           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{entry.notes}</p>
                         )}
-                      </div>
+                </div>
                       <div className="flex items-center space-x-3">
                         <div className="text-right text-sm text-gray-600 dark:text-gray-300">
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
+              <div className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
                             <span>
                               {new Date(entry.start_date).toLocaleDateString()} - {new Date(entry.end_date).toLocaleDateString()}
                             </span>
-                          </div>
-                        </div>
+                </div>
+              </div>
                         <button
                           onClick={() => setDeleteConfirm(entry.id)}
                           className="text-red-500 hover:text-red-700 p-1 rounded"
@@ -318,16 +318,16 @@ export default function AwayPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </div>
-                    </div>
-                  </div>
+            </div>
+          </div>
+        </div>
                 ))}
               </div>
             </section>
             )
           })
         )}
-      </div>
+          </div>
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (

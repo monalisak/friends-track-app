@@ -354,7 +354,7 @@ export function DashboardContent() {
   }
 
   return (
-    <LayoutShell>
+    <LayoutShell onFabClick={() => setShowMeetupForm(true)}>
       <div className="pb-4">
       <header className="mb-8">
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">

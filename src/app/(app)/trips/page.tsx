@@ -202,9 +202,9 @@ export default function TripsPage() {
         </div>
         <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
           <SheetTrigger asChild>
-            <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
-              <Plus className="w-5 h-5" />
-            </button>
+        <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
+          <Plus className="w-5 h-5" />
+        </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">
@@ -245,14 +245,14 @@ export default function TripsPage() {
                 className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => router.push(`/trips/${trip.id}`)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 dark:text-white">{trip.title}</h3>
                     {trip.location && <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{trip.location}</p>}
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}
                     </p>
-                  </div>
+            </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     !userRsvp
                       ? 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
@@ -263,39 +263,39 @@ export default function TripsPage() {
                       : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                   }`}>
                     {userRsvp ? userRsvp.status : 'Not responded'}
-                  </span>
-                </div>
+            </span>
+          </div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
-                    <Users className="w-4 h-4 mr-1" />
+              <Users className="w-4 h-4 mr-1" />
                     <span>
                       {rsvpCounts.going} going • {rsvpCounts.maybe} maybe • {rsvpCounts.cant} can't
-                    </span>
-                  </div>
+            </span>
+          </div>
                   <div className="flex items-center space-x-2">
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Created by {getMemberName(trip.created_by)}
-                    </div>
+            </div>
                     <button
                       onClick={() => setDeleteConfirm(trip.id)}
                       className="text-red-500 hover:text-red-700 p-1 rounded"
                       title="Delete trip"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+            </button>
+          </div>
+        </div>
                 {currentUser && (
                   <RsvpButtons
                     currentRsvp={userRsvp}
                     onRsvp={(status) => handleRsvpUpdate(trip.id, status)}
                   />
                 )}
-              </div>
+            </div>
             )
           })
         )}
-      </div>
+          </div>
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (

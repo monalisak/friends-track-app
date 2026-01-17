@@ -48,7 +48,7 @@ export default function RootLayout({
         <UserProvider>
           <UserSelector />
           <div className="min-h-screen pb-20">
-            {children}
+        {children}
           </div>
           <BottomNav />
         </UserProvider>
