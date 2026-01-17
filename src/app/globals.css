@@ -65,6 +65,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* iOS/Safari: ensure date/datetime inputs never overflow their container */
+input[type="date"],
+input[type="datetime-local"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+
 /* iOS PWA Safe Area Support */
 @supports (padding: max(0px)) {
   .safe-area-inset-bottom {
