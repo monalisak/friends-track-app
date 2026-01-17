@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
 import { LayoutShell } from "@/components/layout-shell"
 import { PlanCard } from "@/components/plan-card"
+import { DateBadge } from "@/components/date-badge"
 import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
@@ -472,7 +473,8 @@ export function DashboardContent() {
                           className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
-                          <div className="flex items-start justify-between">
+                          <div className="flex items-start">
+                            <DateBadge date={new Date(meetup.date_time)} />
                             <div className="flex-1">
                               <h4 className="text-lg font-bold text-gray-900 mb-2">
                                 {meetup.title}
@@ -540,7 +542,8 @@ export function DashboardContent() {
                 className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start">
+                  <DateBadge date={new Date(trip.start_date)} />
                   <div className="flex-1">
                     <h4 className="text-lg font-bold text-gray-900 mb-2">
                       {trip.title}
@@ -561,10 +564,6 @@ export function DashboardContent() {
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 ml-4">
-                    <Users className="w-4 h-4 mr-1" />
-                    <span>{trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
-                  </div>
                 </div>
 
                 {/* RSVP Buttons */}
@@ -573,6 +572,10 @@ export function DashboardContent() {
                     currentRsvp={getCurrentUserRsvp(trip, 'trip')}
                     onRsvp={(status) => handleTripRsvp(trip.id, status)}
                   />
+                </div>
+                <div className="flex items-center text-sm text-gray-600 ml-4">
+                  <Users className="w-4 h-4 mr-1" />
+                  <span>{trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
                 </div>
               </div>
             ))}
