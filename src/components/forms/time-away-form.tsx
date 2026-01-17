@@ -60,8 +60,8 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-1 gap-3">
-        <div className="min-w-0">
+      <div className="grid grid-cols-1 gap-3 w-full min-w-0">
+        <div className="min-w-0 w-full">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
           </label>
@@ -79,10 +79,10 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
               })
             }}
             required
-            className="h-11 w-full"
+            className="h-11 w-full min-w-0 max-w-full"
           />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 w-full">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             End Date *
           </label>
@@ -92,7 +92,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             min={formData.startDate}
             required
-            className="h-11 w-full"
+            className="h-11 w-full min-w-0 max-w-full"
           />
         </div>
       </div>
