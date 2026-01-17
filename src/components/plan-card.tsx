@@ -57,25 +57,38 @@ export function PlanCard({
   return (
     <div
       onClick={onCardClick}
-      className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer active:scale-[0.98] mb-4"
+      className="bg-white rounded-[28px] p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer active:scale-[0.98] mb-4"
     >
       <div className="flex items-start">
-        <DateBadge date={date} />
+        {/* Calendar Badge */}
+        <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
+          <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">
+              {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+            </span>
+          </div>
+          <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
+            <span className="text-gray-900 text-xl font-bold">
+              {date.getDate()}
+            </span>
+          </div>
+        </div>
 
-        <div className="flex-1 min-w-0">
+        {/* Content Block */}
+        <div className="flex-1 min-w-0 mr-3">
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2 truncate">
             {title}
           </h3>
 
           {/* Date and time */}
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-base text-gray-600 mb-3">
             {formatDate(date)}, {formatTimeRange(date, endDate)}
           </p>
 
           {/* Location */}
           {location && (
-            <div className="flex items-center text-sm text-gray-600 mb-3">
+            <div className="flex items-center text-base text-gray-700 mb-4">
               <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
               <span className="truncate">{location}</span>
             </div>
@@ -91,7 +104,7 @@ export function PlanCard({
             e.stopPropagation()
             onEdit?.()
           }}
-          className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center ml-3 transition-colors flex-shrink-0"
+          className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
         >
           <Pencil className="w-4 h-4 text-gray-600" />
         </button>

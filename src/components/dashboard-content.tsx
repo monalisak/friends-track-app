@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, MapPin, Users, Clock, Plus, Plane } from "lucide-react"
+import { Calendar, MapPin, Users, Clock, Plus, Plane, Pencil } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { supabase } from "@/utils/supabase"
 import { MeetupForm } from "@/components/forms/meetup-form"
@@ -471,51 +471,76 @@ export function DashboardContent() {
                       {dateMeetups.map((meetup: any) => (
                         <div
                           key={meetup.id}
-                          className="bg-white rounded-3xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                          className="bg-white rounded-[28px] p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
                           <div className="flex items-start">
-                            <DateBadge date={new Date(meetup.date_time)} />
-                            <div className="flex-1">
-                              <h4 className="text-lg font-bold text-gray-900 mb-2">
+                            {/* Calendar Badge */}
+                            <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
+                              <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">
+                                  {new Date(meetup.date_time).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
+                                <span className="text-gray-900 text-xl font-bold">
+                                  {new Date(meetup.date_time).getDate()}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Content Block */}
+                            <div className="flex-1 min-w-0 mr-3">
+                              <h4 className="text-2xl font-bold text-gray-900 mb-2 truncate">
                                 {meetup.title}
                               </h4>
-                              <div className="flex items-center text-gray-600 text-sm mb-2">
-                                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>{(() => {
+                              <p className="text-base text-gray-600 mb-3">
+                                {new Date(meetup.date_time).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}, {(() => {
                                   const d = new Date(meetup.date_time)
                                   const hours = d.getHours()
                                   const minutes = d.getMinutes()
-                                  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
-                                })()}</span>
-                              </div>
+                                  const ampm = hours >= 12 ? 'PM' : 'AM'
+                                  const displayHours = hours % 12 || 12
+                                  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`
+                                })()}
+                              </p>
                               {meetup.location && (
-                                <div className="flex items-center text-gray-600 text-sm mb-2">
+                                <div className="flex items-center text-base text-gray-700 mb-4">
                                   <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                                   <span>{meetup.location}</span>
                                 </div>
                               )}
-                              {meetup.notes && (
-                                <p className="text-gray-600 text-sm line-clamp-2">
-                                  {meetup.notes}
-                                </p>
-                              )}
+                              <AvatarStack
+                                avatars={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                                  const member = members.find(m => m.id === rsvp.member_id)
+                                  return {
+                                    id: rsvp.member_id,
+                                    name: member?.name || 'Unknown',
+                                    color: member?.color || '#F6A08B'
+                                  }
+                                }) || []}
+                                maxVisible={3}
+                              />
                             </div>
-                            <AvatarStack
-                              avatars={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                                const member = members.find(m => m.id === rsvp.member_id)
-                                return {
-                                  id: rsvp.member_id,
-                                  name: member?.name || 'Unknown',
-                                  color: member?.color || '#F6A08B'
-                                }
-                              }) || []}
-                              maxVisible={3}
-                            />
+
+                            {/* Edit button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                window.location.href = `/meetups/${meetup.id}`
+                              }}
+                              className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
+                            >
+                              <Pencil className="w-4 h-4 text-gray-600" />
+                            </button>
                           </div>
 
                           {/* RSVP Buttons */}
-                          <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="mt-5 pt-4 border-t border-gray-100">
                             <RsvpButtons
                               currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
                               onRsvp={(status) => handleMeetupRsvp(meetup.id, status)}
@@ -547,51 +572,77 @@ export function DashboardContent() {
             {trips.map((trip: any) => (
               <div
                 key={trip.id}
-                className="bg-white rounded-3xl p-4 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
+                className="bg-white rounded-[28px] p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
                 <div className="flex items-start">
-                  <DateBadge date={new Date(trip.start_date)} />
-                  <div className="flex-1">
-                    <h4 className="text-lg font-bold text-gray-900 mb-2">
+                  {/* Calendar Badge */}
+                  <div className="w-16 h-16 rounded-[18px] border-2 border-[#F6A08B] flex flex-col mr-4 flex-shrink-0">
+                    <div className="bg-[#F6A08B] rounded-t-[16px] flex-1 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">
+                        {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="bg-white rounded-b-[16px] flex-1 flex items-center justify-center">
+                      <span className="text-gray-900 text-xl font-bold">
+                        {new Date(trip.start_date).getDate()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Content Block */}
+                  <div className="flex-1 min-w-0 mr-3">
+                    <h4 className="text-2xl font-bold text-gray-900 mb-2 truncate">
                       {trip.title}
                     </h4>
-                    <div className="flex items-center text-gray-600 text-sm mb-2">
-                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span>{new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}</span>
-                    </div>
+                    <p className="text-base text-gray-600 mb-3">
+                      {new Date(trip.start_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                      })} - {new Date(trip.end_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
                     {trip.location && (
-                      <div className="flex items-center text-gray-600 text-sm mb-2">
+                      <div className="flex items-center text-base text-gray-700 mb-4">
                         <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span>{trip.location}</span>
                       </div>
                     )}
-                    {trip.notes && (
-                      <p className="text-gray-600 text-sm line-clamp-2">
-                        {trip.notes}
-                      </p>
-                    )}
+                    <AvatarStack
+                      avatars={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                        const member = members.find(m => m.id === rsvp.member_id)
+                        return {
+                          id: rsvp.member_id,
+                          name: member?.name || 'Unknown',
+                          color: member?.color || '#F6A08B'
+                        }
+                      }) || []}
+                      maxVisible={3}
+                    />
                   </div>
+
+                  {/* Edit button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      window.location.href = `/trips/${trip.id}`
+                    }}
+                    className="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start mt-1"
+                  >
+                    <Pencil className="w-4 h-4 text-gray-600" />
+                  </button>
                 </div>
 
                 {/* RSVP Buttons */}
-                <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="mt-5 pt-4 border-t border-gray-100">
                   <RsvpButtons
                     currentRsvp={getCurrentUserRsvp(trip, 'trip')}
                     onRsvp={(status) => handleTripRsvp(trip.id, status)}
                   />
                 </div>
-                <AvatarStack
-                  avatars={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                    const member = members.find(m => m.id === rsvp.member_id)
-                    return {
-                      id: rsvp.member_id,
-                      name: member?.name || 'Unknown',
-                      color: member?.color || '#F6A08B'
-                    }
-                  }) || []}
-                  maxVisible={3}
-                />
               </div>
             ))}
           </div>
