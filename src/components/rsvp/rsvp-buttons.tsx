@@ -53,10 +53,10 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
   ]
 
   return (
-    <div className="grid grid-cols-10 gap-2">
+    <div className="grid grid-cols-11 gap-2">
       {rsvpOptions.map(({ status, label, icon: Icon }) => {
         const isClear = status === null
-        const colSpan = isClear ? "col-span-1" : "col-span-3"
+        const colSpan = isClear ? "col-span-2" : "col-span-3"
         return (
         <button
           key={status || 'clear'}
@@ -70,7 +70,7 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          <Icon className={`w-3.5 h-3.5 ${isClear ? "" : "mr-1.5"}`} />
+          <Icon className={`w-4 h-4 ${isClear ? "" : "mr-1.5"}`} />
           {!isClear && label}
         </button>
       )})}
