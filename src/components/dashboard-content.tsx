@@ -9,6 +9,7 @@ import { TripForm } from "@/components/forms/trip-form"
 import { TimeAwayForm } from "@/components/forms/time-away-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
+import { LayoutShell } from "@/components/layout-shell"
 import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
@@ -353,22 +354,18 @@ export function DashboardContent() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-6">
+    <LayoutShell>
+      <div className="pb-4">
       <header className="mb-8">
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 rounded-3xl p-8 shadow-xl border border-blue-100/50 dark:border-gray-700/50 backdrop-blur-sm">
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-gray-900">
                 Pal Cal(ender)
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+              <p className="text-gray-600 mt-1">
                 {currentUser ? `Welcome back, ${currentUser.name}!` : 'Track meetups, trips, and time away'}
               </p>
-            </div>
-            <div className="hidden sm:block">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Calendar className="w-8 h-8 text-white" />
-              </div>
             </div>
           </div>
         </div>
@@ -458,18 +455,13 @@ export function DashboardContent() {
 
       {/* Meetups Section */}
       <section className="mb-10">
-        <div className="flex items-center mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-            <Calendar className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Meetups</h2>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Meetups</h2>
 
         {meetups.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming meetups</p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Create your first meetup to get started!</p>
+            <p className="text-gray-600">No upcoming meetups</p>
+            <p className="text-gray-500 text-sm mt-2">Create your first meetup to get started!</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -503,7 +495,7 @@ export function DashboardContent() {
                       {dateMeetups.map((meetup: any) => (
                         <div
                           key={meetup.id}
-                          className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 cursor-pointer hover:shadow-xl hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                          className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                           onClick={() => window.location.href = `/meetups/${meetup.id}`}
                         >
                           <div className="flex items-start justify-between">
@@ -558,25 +550,20 @@ export function DashboardContent() {
 
       {/* Trips Section */}
       <section className="mb-10">
-        <div className="flex items-center mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-            <Plane className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Trips</h2>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Trips</h2>
 
         {trips.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
             <Plane className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming trips</p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Plan your next adventure!</p>
+            <p className="text-gray-600">No upcoming trips</p>
+            <p className="text-gray-500 text-sm mt-2">Plan your next adventure!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {trips.map((trip: any) => (
               <div
                 key={trip.id}
-                className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 cursor-pointer hover:shadow-xl hover:shadow-emerald-100/50 dark:hover:shadow-emerald-900/20 transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                className="bg-white rounded-3xl p-5 cursor-pointer hover:shadow-md transition-shadow shadow-sm"
                 onClick={() => window.location.href = `/trips/${trip.id}`}
               >
                 <div className="flex items-start justify-between">
@@ -621,25 +608,20 @@ export function DashboardContent() {
 
       {/* Time Away Section */}
       <section>
-        <div className="flex items-center mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-            <Clock className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Time Away</h2>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Time Away</h2>
 
         {timeAway.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
             <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-300 text-lg">No upcoming time away</p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Share when you'll be traveling!</p>
+            <p className="text-gray-600">No upcoming time away</p>
+            <p className="text-gray-500 text-sm mt-2">Share when you'll be traveling!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {timeAway.map((timeAwayEntry: any) => (
               <div
                 key={timeAwayEntry.id}
-                className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 shadow-lg"
+                className="bg-white rounded-3xl p-5 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -687,5 +669,6 @@ export function DashboardContent() {
       )}
 
     </div>
+    </LayoutShell>
   )
 }
