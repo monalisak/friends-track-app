@@ -96,12 +96,13 @@ export function DashboardContent() {
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-primary">Pal Cal(ender)</h1>
           <p className="text-secondary mt-1">Track meetups, trips, and time away</p>
+          <p className="text-sm text-muted mt-2">Debug: {meetups.length} meetups, {trips.length} trips, {timeAway.length} time away</p>
         </header>
 
         {/* Meetups Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Meetups</h2>
+            <h2 className="text-lg font-semibold text-primary">Meetups ({meetups.length})</h2>
           </div>
 
           {meetups.length === 0 ? (
@@ -113,28 +114,16 @@ export function DashboardContent() {
           ) : (
             <div className="space-y-3">
               {meetups.map((meetup) => (
-                <PlanCard
-                  key={meetup.id}
-                  title={meetup.title}
-                  date={new Date(meetup.date_time)}
-                  endDate={undefined}
-                  location={meetup.location}
-                  attendees={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                    const member = members.find(m => m.id === rsvp.member_id)
-                    return {
-                      id: rsvp.member_id,
-                      name: member?.name || 'Unknown',
-                      color: member?.color || '#F6A08B'
-                    }
-                  }) || []}
-                  onEdit={() => setShowEditMeetup(meetup)}
-                  onCardClick={() => window.location.href = `/meetups/${meetup.id}`}
-                >
-                  <RsvpButtons
-                    currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
-                    onRsvp={(status) => updateMeetupRsvp(meetup.id, status)}
-                  />
-                </PlanCard>
+                <div key={meetup.id} className="card-revolut p-4">
+                  <h3 className="text-lg font-semibold text-primary">{meetup.title}</h3>
+                  <p className="text-secondary">{formatDateTime(meetup.date_time)}</p>
+                  <button
+                    onClick={() => setShowEditMeetup(meetup)}
+                    className="mt-2 px-3 py-1 bg-accent text-white rounded text-sm"
+                  >
+                    Edit
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -143,7 +132,7 @@ export function DashboardContent() {
         {/* Trips Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Trips</h2>
+            <h2 className="text-lg font-semibold text-primary">Trips ({trips.length})</h2>
           </div>
 
           {trips.length === 0 ? (
@@ -155,28 +144,16 @@ export function DashboardContent() {
           ) : (
             <div className="space-y-3">
               {trips.map((trip) => (
-                <PlanCard
-                  key={trip.id}
-                  title={trip.title}
-                  date={new Date(trip.start_date)}
-                  endDate={new Date(trip.end_date)}
-                  location={trip.location}
-                  attendees={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
-                    const member = members.find(m => m.id === rsvp.member_id)
-                    return {
-                      id: rsvp.member_id,
-                      name: member?.name || 'Unknown',
-                      color: member?.color || '#F6A08B'
-                    }
-                  }) || []}
-                  onEdit={() => setShowEditTrip(trip)}
-                  onCardClick={() => window.location.href = `/trips/${trip.id}`}
-                >
-                  <RsvpButtons
-                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
-                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
-                  />
-                </PlanCard>
+                <div key={trip.id} className="card-revolut p-4">
+                  <h3 className="text-lg font-semibold text-primary">{trip.title}</h3>
+                  <p className="text-secondary">{new Date(trip.start_date).toLocaleDateString()}</p>
+                  <button
+                    onClick={() => setShowEditTrip(trip)}
+                    className="mt-2 px-3 py-1 bg-accent text-white rounded text-sm"
+                  >
+                    Edit
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -185,7 +162,7 @@ export function DashboardContent() {
         {/* Time Away Section */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary">Time Away</h2>
+            <h2 className="text-lg font-semibold text-primary">Time Away ({timeAway.length})</h2>
           </div>
 
           {timeAway.length === 0 ? (
@@ -197,27 +174,13 @@ export function DashboardContent() {
           ) : (
             <div className="space-y-3">
               {timeAway.map((timeAwayEntry) => (
-                <div
-                  key={timeAwayEntry.id}
-                  className="card-revolut p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-primary">
-                        {timeAwayEntry.members?.name || 'Unknown'}
-                      </p>
-                      {timeAwayEntry.type && <p className="text-sm text-secondary">{timeAwayEntry.type}</p>}
-                      {timeAwayEntry.notes && <p className="text-sm text-secondary mt-1">{timeAwayEntry.notes}</p>}
-                    </div>
-                    <div className="text-right text-sm text-secondary">
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span>
-                          {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                <div key={timeAwayEntry.id} className="card-revolut p-4">
+                  <p className="font-semibold text-primary">
+                    {timeAwayEntry.members?.name || 'Unknown'}
+                  </p>
+                  <p className="text-secondary">
+                    {new Date(timeAwayEntry.start_date).toLocaleDateString()} - {new Date(timeAwayEntry.end_date).toLocaleDateString()}
+                  </p>
                 </div>
               ))}
             </div>
