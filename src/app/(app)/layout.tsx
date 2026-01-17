@@ -12,7 +12,7 @@ export default function AppLayout({
     <>
       <UserSelector />
       <SwipeNavigation />
-      <div className="min-h-screen pb-20">
+      <div id="swipe-container" className="min-h-screen pb-20">
         <AppHeader />
         {children}
       </div>

@@ -65,54 +65,41 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Swipe navigation animations (View Transitions API) */
-@supports (view-transition-name: root) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 260ms;
-    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  html[data-swipe-dir="left"]::view-transition-old(root) {
-    animation-name: swipe-old-left;
-  }
-  html[data-swipe-dir="left"]::view-transition-new(root) {
-    animation-name: swipe-new-left;
-  }
-
-  html[data-swipe-dir="right"]::view-transition-old(root) {
-    animation-name: swipe-old-right;
-  }
-  html[data-swipe-dir="right"]::view-transition-new(root) {
-    animation-name: swipe-new-right;
-  }
-
-  @keyframes swipe-old-left {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(-18%); opacity: 0.6; }
-  }
-  @keyframes swipe-new-left {
-    from { transform: translateX(18%); opacity: 0.6; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes swipe-old-right {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(18%); opacity: 0.6; }
-  }
-  @keyframes swipe-new-right {
-    from { transform: translateX(-18%); opacity: 0.6; }
-    to { transform: translateX(0); opacity: 1; }
-  }
+/* Swipe navigation animations (Safari-friendly) */
+#swipe-container {
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, opacity;
 }
 
-/* Fallback for browsers without View Transitions */
-html.swipe-fallback body {
-  animation: swipe-fade 220ms ease-out;
+html.swipe-no-transition #swipe-container {
+  transition: none !important;
 }
-@keyframes swipe-fade {
-  from { opacity: 0.85; }
-  to { opacity: 1; }
+
+/* Swipe out */
+html[data-swipe-phase="out"][data-swipe-dir="left"] #swipe-container {
+  transform: translateX(-14%);
+  opacity: 0.65;
+}
+html[data-swipe-phase="out"][data-swipe-dir="right"] #swipe-container {
+  transform: translateX(14%);
+  opacity: 0.65;
+}
+
+/* Swipe in (set without transition, then animate to idle) */
+html[data-swipe-phase="in"][data-swipe-dir="left"] #swipe-container {
+  transform: translateX(14%);
+  opacity: 0.65;
+}
+html[data-swipe-phase="in"][data-swipe-dir="right"] #swipe-container {
+  transform: translateX(-14%);
+  opacity: 0.65;
+}
+
+/* Idle */
+html[data-swipe-phase="idle"] #swipe-container {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 /* iOS/Safari: ensure date/datetime inputs never overflow their container */

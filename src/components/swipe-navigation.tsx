@@ -13,6 +13,31 @@ export function SwipeNavigation() {
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null)
   const isAnimating = useRef(false)
 
+  // On route change, if a swipe navigation was requested, animate the new page in.
+  useEffect(() => {
+    const pending = sessionStorage.getItem("swipePending")
+    const dir = sessionStorage.getItem("swipeDir") as "left" | "right" | null
+    if (!pending || !dir) return
+
+    sessionStorage.removeItem("swipePending")
+    sessionStorage.removeItem("swipeDir")
+
+    // Prepare enter animation without transition, then animate to idle.
+    const html = document.documentElement
+    html.dataset.swipeDir = dir
+    html.dataset.swipePhase = "in"
+    html.classList.add("swipe-no-transition")
+
+    requestAnimationFrame(() => {
+      html.classList.remove("swipe-no-transition")
+      html.dataset.swipePhase = "idle"
+      window.setTimeout(() => {
+        html.dataset.swipePhase = ""
+        isAnimating.current = false
+      }, 320)
+    })
+  }, [pathname])
+
   useEffect(() => {
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return
@@ -58,34 +83,19 @@ export function SwipeNavigation() {
       const dir = dx < 0 ? "left" : "right"
       const nextHref = tabs[nextIdx]
 
-      // Best-effort animation: View Transitions API when available, otherwise a brief fade.
       isAnimating.current = true
-      document.documentElement.dataset.swipeDir = dir
+      const html = document.documentElement
+      html.dataset.swipeDir = dir
+      html.dataset.swipePhase = "out"
 
-      const startViewTransition = (document as any).startViewTransition as
-        | ((cb: () => void) => { finished: Promise<void> })
-        | undefined
+      // Remember that the next route change should animate in.
+      sessionStorage.setItem("swipePending", "1")
+      sessionStorage.setItem("swipeDir", dir)
 
-      if (typeof startViewTransition === "function") {
-        try {
-          const vt = startViewTransition(() => router.push(nextHref))
-          vt.finished.finally(() => {
-            isAnimating.current = false
-          })
-          return
-        } catch {
-          // fall through to fade fallback
-        }
-      }
-
-      document.documentElement.classList.add("swipe-fallback")
+      // Let the "out" animation start, then navigate.
       window.setTimeout(() => {
         router.push(nextHref)
-      }, 80)
-      window.setTimeout(() => {
-        document.documentElement.classList.remove("swipe-fallback")
-        isAnimating.current = false
-      }, 420)
+      }, 140)
     }
 
     document.addEventListener("touchstart", onTouchStart, { passive: true })
