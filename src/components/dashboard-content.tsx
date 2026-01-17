@@ -526,12 +526,12 @@ export function DashboardContent() {
                             <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
                               <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
                                 <span className="text-white text-[10px] font-bold">
-                                  {new Date(meetup.date_time).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                                  {new Date(meetup.date_time).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
                                 </span>
                               </div>
                               <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
                                 <span className="text-gray-900 text-lg font-bold">
-                                  {new Date(meetup.date_time).getDate()}
+                                  {new Date(meetup.date_time).getUTCDate()}
                                 </span>
                               </div>
                             </div>
@@ -542,17 +542,7 @@ export function DashboardContent() {
                                 {meetup.title}
                               </h4>
                               <p className="text-sm text-gray-600 mb-2">
-                                {new Date(meetup.date_time).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric'
-                                })}, {(() => {
-                                  const d = new Date(meetup.date_time)
-                                  const hours = d.getHours()
-                                  const minutes = d.getMinutes()
-                                  const ampm = hours >= 12 ? 'PM' : 'AM'
-                                  const displayHours = hours % 12 || 12
-                                  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`
-                                })()}
+                                {formatDateTime(meetup.date_time)}
                               </p>
                               {meetup.location && (
                                 <div className="flex items-center text-sm text-gray-700 mb-2">
@@ -625,14 +615,14 @@ export function DashboardContent() {
                   {/* Calendar Badge */}
                   <div className="w-12 h-12 rounded-lg border-2 border-[#F6A08B] flex flex-col mr-3 flex-shrink-0">
                     <div className="bg-[#F6A08B] rounded-t-md flex-1 flex items-center justify-center">
-                      <span className="text-white text-[10px] font-bold">
-                        {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
-                      </span>
+                                <span className="text-white text-[10px] font-bold">
+                                  {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
+                                </span>
                     </div>
                     <div className="bg-white rounded-b-md flex-1 flex items-center justify-center">
-                      <span className="text-gray-900 text-lg font-bold">
-                        {new Date(trip.start_date).getDate()}
-                      </span>
+                                <span className="text-gray-900 text-lg font-bold">
+                                  {new Date(trip.start_date).getUTCDate()}
+                                </span>
                     </div>
                   </div>
 

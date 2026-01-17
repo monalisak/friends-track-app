@@ -21,20 +21,21 @@ export function formatTime(date: Date | string): string {
 }
 
 /**
- * Format a datetime exactly as stored - display the time as entered by user
+ * Format a datetime exactly as stored - display the UTC time as entered by user
+ * Since we store times as UTC but want to show exactly what the user entered,
+ * we extract the UTC components directly
  */
 export function formatDateTime(date: Date | string): string {
   const d = new Date(date)
 
-  // Use local time methods to display the time exactly as the user entered it
-  // This shows the time in the user's local timezone interpretation
-  const year = d.getFullYear()
-  const month = d.getMonth()
-  const day = d.getDate()
-  const hours = d.getHours()
-  const minutes = d.getMinutes()
+  // Use UTC methods to get the exact time stored, not converted to local time
+  const year = d.getUTCFullYear()
+  const month = d.getUTCMonth()
+  const day = d.getUTCDate()
+  const hours = d.getUTCHours()
+  const minutes = d.getUTCMinutes()
 
-  // Format as DD/MM/YYYY • HH:MM
+  // Format as DD/MM/YYYY • HH:MM (24-hour format)
   const dateStr = `${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/${year}`
   const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
 

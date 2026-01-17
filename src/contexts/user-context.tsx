@@ -7,12 +7,14 @@ interface UserContextType {
   currentUser: Member | null
   setCurrentUser: (user: Member) => void
   members: readonly Member[]
+  isLoading: boolean
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<Member | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Load user from localStorage on mount
@@ -23,6 +25,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser(savedUser)
       }
     }
+    setIsLoading(false)
   }, [])
 
   const handleSetCurrentUser = (user: Member) => {
@@ -34,7 +37,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     <UserContext.Provider value={{
       currentUser,
       setCurrentUser: handleSetCurrentUser,
-      members: MEMBERS
+      members: MEMBERS,
+      isLoading
     }}>
       {children}
     </UserContext.Provider>

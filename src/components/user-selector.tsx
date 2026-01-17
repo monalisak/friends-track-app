@@ -6,10 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users } from 'lucide-react'
 
 export function UserSelector() {
-  const { currentUser, setCurrentUser, members } = useUser()
+  const { currentUser, setCurrentUser, members, isLoading } = useUser()
 
-  if (currentUser) {
-    return null // User is already selected
+  if (isLoading || currentUser) {
+    return null // Still loading or user is already selected
   }
 
   return (
