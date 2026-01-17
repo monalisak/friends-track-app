@@ -20,7 +20,7 @@ export function LayoutShell({
   onFabClick
 }: LayoutShellProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       <main className="max-w-md mx-auto px-4 py-6 pb-32">
         {children}
       </main>
