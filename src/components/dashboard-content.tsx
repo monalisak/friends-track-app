@@ -114,16 +114,28 @@ export function DashboardContent() {
           ) : (
             <div className="space-y-3">
               {meetups.map((meetup) => (
-                <div key={meetup.id} className="card-revolut p-4">
-                  <h3 className="text-lg font-semibold text-primary">{meetup.title}</h3>
-                  <p className="text-secondary">{formatDateTime(meetup.date_time)}</p>
-                  <button
-                    onClick={() => setShowEditMeetup(meetup)}
-                    className="mt-2 px-3 py-1 bg-accent text-white rounded text-sm"
-                  >
-                    Edit
-                  </button>
-                </div>
+                <PlanCard
+                  key={meetup.id}
+                  title={meetup.title}
+                  date={new Date(meetup.date_time)}
+                  endDate={undefined}
+                  location={meetup.location}
+                  attendees={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                    const member = members.find(m => m.id === rsvp.member_id)
+                    return {
+                      id: rsvp.member_id,
+                      name: member?.name || 'Unknown',
+                      color: member?.color || '#F6A08B'
+                    }
+                  }) || []}
+                  onEdit={() => setShowEditMeetup(meetup)}
+                  onCardClick={() => window.location.href = `/meetups/${meetup.id}`}
+                >
+                  <RsvpButtons
+                    currentRsvp={getCurrentUserRsvp(meetup, 'meetup')}
+                    onRsvp={(status) => updateMeetupRsvp(meetup.id, status)}
+                  />
+                </PlanCard>
               ))}
             </div>
           )}
@@ -144,16 +156,28 @@ export function DashboardContent() {
           ) : (
             <div className="space-y-3">
               {trips.map((trip) => (
-                <div key={trip.id} className="card-revolut p-4">
-                  <h3 className="text-lg font-semibold text-primary">{trip.title}</h3>
-                  <p className="text-secondary">{new Date(trip.start_date).toLocaleDateString()}</p>
-                  <button
-                    onClick={() => setShowEditTrip(trip)}
-                    className="mt-2 px-3 py-1 bg-accent text-white rounded text-sm"
-                  >
-                    Edit
-                  </button>
-                </div>
+                <PlanCard
+                  key={trip.id}
+                  title={trip.title}
+                  date={new Date(trip.start_date)}
+                  endDate={new Date(trip.end_date)}
+                  location={trip.location}
+                  attendees={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                    const member = members.find(m => m.id === rsvp.member_id)
+                    return {
+                      id: rsvp.member_id,
+                      name: member?.name || 'Unknown',
+                      color: member?.color || '#F6A08B'
+                    }
+                  }) || []}
+                  onEdit={() => setShowEditTrip(trip)}
+                  onCardClick={() => window.location.href = `/trips/${trip.id}`}
+                >
+                  <RsvpButtons
+                    currentRsvp={getCurrentUserRsvp(trip, 'trip')}
+                    onRsvp={(status) => updateTripRsvp(trip.id, status)}
+                  />
+                </PlanCard>
               ))}
             </div>
           )}
