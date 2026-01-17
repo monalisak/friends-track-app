@@ -63,20 +63,29 @@ export function TripForm({ onSubmit, onCancel, initialData }: TripFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="min-w-0">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
           </label>
           <Input
             type="date"
             value={formData.startDate}
-            onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+            onChange={(e) => {
+              const nextStart = e.target.value
+              setFormData(prev => {
+                const nextEnd =
+                  prev.endDate && nextStart && new Date(prev.endDate) < new Date(nextStart)
+                    ? ''
+                    : prev.endDate
+                return { ...prev, startDate: nextStart, endDate: nextEnd }
+              })
+            }}
             required
             className="h-11 w-full"
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             End Date *
           </label>
