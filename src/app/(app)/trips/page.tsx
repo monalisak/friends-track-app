@@ -103,20 +103,36 @@ export default function TripsPage() {
     return member?.color || '#6b7280'
   }
 
-  const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant') => {
+  const handleRsvpUpdate = async (tripId: string, status: 'going' | 'maybe' | 'cant' | null) => {
     if (!currentUser) return
 
     try {
-      const { error } = await supabase
-        .from('rsvps')
-        .upsert({
-          trip_id: tripId,
-          member_id: currentUser.id,
-          status,
-        })
+      let error = null
+
+      if (status === null) {
+        // Clear RSVP
+        const result = await supabase
+          .from('rsvps')
+          .delete()
+          .eq('trip_id', tripId)
+          .eq('member_id', currentUser.id)
+        error = result.error
+      } else {
+        // Update RSVP
+        const result = await supabase
+          .from('rsvps')
+          .upsert({
+            trip_id: tripId,
+            member_id: currentUser.id,
+            status,
+          })
+        error = result.error
+      }
 
       if (error) {
         console.error('Error updating RSVP:', error)
+      } else {
+        fetchTrips() // Refresh data
       }
     } catch (error) {
       console.error('Error updating RSVP:', error)

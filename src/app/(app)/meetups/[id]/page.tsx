@@ -59,17 +59,31 @@ export default function MeetupDetailPage() {
     }
   }
 
-  const handleRsvpUpdate = async (status: 'going' | 'maybe' | 'cant') => {
+  const handleRsvpUpdate = async (status: 'going' | 'maybe' | 'cant' | null) => {
     if (!currentUser || !meetup) return
 
     try {
-      const { error } = await supabase
-        .from('rsvps')
-        .upsert({
-          meetup_id: meetup.id,
-          member_id: currentUser.id,
-          status,
-        })
+      let error = null
+
+      if (status === null) {
+        // Clear RSVP
+        const result = await supabase
+          .from('rsvps')
+          .delete()
+          .eq('meetup_id', meetup.id)
+          .eq('member_id', currentUser.id)
+        error = result.error
+      } else {
+        // Update RSVP
+        const result = await supabase
+          .from('rsvps')
+          .upsert({
+            meetup_id: meetup.id,
+            member_id: currentUser.id,
+            status,
+          })
+        error = result.error
+      }
 
       if (error) {
         console.error('Error updating RSVP:', error)

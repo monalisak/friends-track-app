@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, Clock, X } from "lucide-react"
+import { Check, Clock, X, RotateCcw } from "lucide-react"
 
 interface RsvpButtonsProps {
   currentRsvp?: {
     status: 'going' | 'maybe' | 'cant'
   } | null
-  onRsvp: (status: 'going' | 'maybe' | 'cant') => void
+  onRsvp: (status: 'going' | 'maybe' | 'cant' | null) => void
 }
 
 export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
@@ -16,7 +16,7 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
     currentRsvp?.status || null
   )
 
-  const handleRsvp = (status: 'going' | 'maybe' | 'cant') => {
+  const handleRsvp = (status: 'going' | 'maybe' | 'cant' | null) => {
     setSelectedStatus(status)
     onRsvp(status)
   }
@@ -43,15 +43,25 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
       color: 'bg-red-600 hover:bg-red-700 text-white',
       selectedColor: 'bg-red-100 border-red-500 text-red-700',
     },
+    {
+      status: null,
+      label: 'Clear',
+      icon: RotateCcw,
+      color: 'bg-gray-600 hover:bg-gray-700 text-white',
+      selectedColor: 'bg-gray-100 border-gray-500 text-gray-700',
+    },
   ]
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {rsvpOptions.map(({ status, label, icon: Icon, color, selectedColor }) => (
           <button
-            key={status}
-            onClick={() => handleRsvp(status)}
+            key={status || 'clear'}
+            onClick={(e) => {
+              e.stopPropagation() // Prevent card click navigation
+              handleRsvp(status)
+            }}
             className={`flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === status
                 ? selectedColor

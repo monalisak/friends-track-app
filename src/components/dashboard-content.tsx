@@ -8,6 +8,7 @@ import { MeetupForm } from "@/components/forms/meetup-form"
 import { TripForm } from "@/components/forms/trip-form"
 import { TimeAwayForm } from "@/components/forms/time-away-form"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
 import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
@@ -18,6 +19,89 @@ export function DashboardContent() {
   const [showMeetupForm, setShowMeetupForm] = useState(false)
   const [showTripForm, setShowTripForm] = useState(false)
   const [showTimeAwayForm, setShowTimeAwayForm] = useState(false)
+
+  // RSVP handling functions
+  const handleMeetupRsvp = async (meetupId: string, status: 'going' | 'maybe' | 'cant' | null) => {
+    if (!currentUser) return
+
+    try {
+      let error = null
+
+      if (status === null) {
+        // Clear RSVP
+        const result = await supabase
+          .from('rsvps')
+          .delete()
+          .eq('meetup_id', meetupId)
+          .eq('member_id', currentUser.id)
+        error = result.error
+      } else {
+        // Update RSVP
+        const result = await supabase
+          .from('rsvps')
+          .upsert({
+            meetup_id: meetupId,
+            member_id: currentUser.id,
+            status,
+          })
+        error = result.error
+      }
+
+      if (error) {
+        console.error('Error updating meetup RSVP:', error)
+      } else {
+        // Refresh data
+        fetchDashboardData()
+      }
+    } catch (error) {
+      console.error('Error updating meetup RSVP:', error)
+    }
+  }
+
+  const handleTripRsvp = async (tripId: string, status: 'going' | 'maybe' | 'cant' | null) => {
+    if (!currentUser) return
+
+    try {
+      let error = null
+
+      if (status === null) {
+        // Clear RSVP
+        const result = await supabase
+          .from('rsvps')
+          .delete()
+          .eq('trip_id', tripId)
+          .eq('member_id', currentUser.id)
+        error = result.error
+      } else {
+        // Update RSVP
+        const result = await supabase
+          .from('rsvps')
+          .upsert({
+            trip_id: tripId,
+            member_id: currentUser.id,
+            status,
+          })
+        error = result.error
+      }
+
+      if (error) {
+        console.error('Error updating trip RSVP:', error)
+      } else {
+        // Refresh data
+        fetchDashboardData()
+      }
+    } catch (error) {
+      console.error('Error updating trip RSVP:', error)
+    }
+  }
+
+  // Get current user's RSVP for an event
+  const getCurrentUserRsvp = (eventData: any, eventType: 'meetup' | 'trip') => {
+    if (!currentUser || !eventData.rsvps) return null
+
+    const userRsvp = eventData.rsvps.find((rsvp: any) => rsvp.member_id === currentUser.id)
+    return userRsvp ? { status: userRsvp.status } : null
+  }
 
   const fetchDashboardData = async () => {
     // Check if Supabase is configured
@@ -39,7 +123,7 @@ export function DashboardContent() {
           .from('meetups')
           .select(`
             *,
-            rsvps(*)
+            rsvps(member_id, status)
           `)
           .gte('date_time', new Date().toISOString())
           .order('date_time', { ascending: true }),
@@ -49,7 +133,7 @@ export function DashboardContent() {
           .from('trips')
           .select(`
             *,
-            rsvps(*)
+            rsvps(member_id, status)
           `)
           .gte('start_date', new Date().toISOString().split('T')[0])
           .order('start_date', { ascending: true }),
@@ -382,11 +466,10 @@ export function DashboardContent() {
                     event.type === 'meetup' ? 'cursor-pointer' :
                     event.type === 'trip' ? 'cursor-pointer' : ''
                   }`}
-                  onClick={() => {
-                    if (event.type === 'meetup') {
-                      window.location.href = `/meetups/${event.data.id}`
-                    } else if (event.type === 'trip') {
-                      window.location.href = `/trips/${event.data.id}`
+                  onClick={(e) => {
+                    // Only navigate if not clicking on RSVP buttons
+                    if (!e.defaultPrevented && (event.type === 'meetup' || event.type === 'trip')) {
+                      window.location.href = `/${event.type === 'meetup' ? 'meetups' : 'trips'}/${event.data.id}`
                     }
                   }}
                 >
@@ -410,7 +493,7 @@ export function DashboardContent() {
                     {event.type !== 'timeaway' && (
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Users className="w-4 h-4 mr-1" />
-                        <span>{event.data.rsvps?.length || 0} going</span>
+                        <span>{event.data.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
                       </div>
                     )}
                   </div>
@@ -439,6 +522,22 @@ export function DashboardContent() {
                       <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm mt-2">
                         <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span>{event.date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                      </div>
+                    )}
+
+                    {/* RSVP Buttons for meetups and trips */}
+                    {(event.type === 'meetup' || event.type === 'trip') && (
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                        <RsvpButtons
+                          currentRsvp={getCurrentUserRsvp(event.data, event.type)}
+                          onRsvp={(status) => {
+                            if (event.type === 'meetup') {
+                              handleMeetupRsvp(event.data.id, status)
+                            } else if (event.type === 'trip') {
+                              handleTripRsvp(event.data.id, status)
+                            }
+                          }}
+                        />
                       </div>
                     )}
                   </div>

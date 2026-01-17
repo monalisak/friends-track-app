@@ -105,17 +105,31 @@ export default function MeetupsPage() {
     return member?.name || 'Unknown'
   }
 
-  const handleRsvpUpdate = async (meetupId: string, status: 'going' | 'maybe' | 'cant') => {
+  const handleRsvpUpdate = async (meetupId: string, status: 'going' | 'maybe' | 'cant' | null) => {
     if (!currentUser) return
 
     try {
-      const { error } = await supabase
-        .from('rsvps')
-        .upsert({
-          meetup_id: meetupId,
-          member_id: currentUser.id,
-          status,
-        })
+      let error = null
+
+      if (status === null) {
+        // Clear RSVP
+        const result = await supabase
+          .from('rsvps')
+          .delete()
+          .eq('meetup_id', meetupId)
+          .eq('member_id', currentUser.id)
+        error = result.error
+      } else {
+        // Update RSVP
+        const result = await supabase
+          .from('rsvps')
+          .upsert({
+            meetup_id: meetupId,
+            member_id: currentUser.id,
+            status,
+          })
+        error = result.error
+      }
 
       if (error) {
         console.error('Error updating RSVP:', error)
