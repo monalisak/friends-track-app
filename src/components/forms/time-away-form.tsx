@@ -35,6 +35,12 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
       return
     }
 
+    // Guard: ensure end date is not before start date (even if browser allows typing)
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      alert('End date cannot be before start date')
+      return
+    }
+
     setLoading(true)
     try {
       await onSubmit(formData)
@@ -54,20 +60,29 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="min-w-0">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             Start Date *
           </label>
           <Input
             type="date"
             value={formData.startDate}
-            onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+            onChange={(e) => {
+              const nextStart = e.target.value
+              setFormData(prev => {
+                const nextEnd =
+                  prev.endDate && nextStart && new Date(prev.endDate) < new Date(nextStart)
+                    ? ''
+                    : prev.endDate
+                return { ...prev, startDate: nextStart, endDate: nextEnd }
+              })
+            }}
             required
-            className="h-11"
+            className="h-11 w-full"
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <label className="block text-xs font-semibold text-gray-600 mb-2">
             End Date *
           </label>
@@ -77,7 +92,7 @@ export function TimeAwayForm({ onSubmit, onCancel, initialData }: TimeAwayFormPr
             onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             min={formData.startDate}
             required
-            className="h-11"
+            className="h-11 w-full"
           />
         </div>
       </div>
