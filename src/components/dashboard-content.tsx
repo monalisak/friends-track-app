@@ -12,10 +12,11 @@ import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
 import { LayoutShell } from "@/components/layout-shell"
 import { PlanCard } from "@/components/plan-card"
 import { DateBadge } from "@/components/date-badge"
+import { AvatarStack } from "@/components/avatar-stack"
 import { formatDateTime } from "@/lib/date-utils"
 
 export function DashboardContent() {
-  const { currentUser } = useUser()
+  const { currentUser, members } = useUser()
   const [meetups, setMeetups] = useState<any[]>([])
   const [trips, setTrips] = useState<any[]>([])
   const [timeAway, setTimeAway] = useState<any[]>([])
@@ -500,10 +501,17 @@ export function DashboardContent() {
                                 </p>
                               )}
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 ml-4">
-                              <Users className="w-4 h-4 mr-1" />
-                              <span>{meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
-                            </div>
+                            <AvatarStack
+                              avatars={meetup.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                                const member = members.find(m => m.id === rsvp.member_id)
+                                return {
+                                  id: rsvp.member_id,
+                                  name: member?.name || 'Unknown',
+                                  color: member?.color || '#F6A08B'
+                                }
+                              }) || []}
+                              maxVisible={3}
+                            />
                           </div>
 
                           {/* RSVP Buttons */}
@@ -573,10 +581,17 @@ export function DashboardContent() {
                     onRsvp={(status) => handleTripRsvp(trip.id, status)}
                   />
                 </div>
-                <div className="flex items-center text-sm text-gray-600 ml-4">
-                  <Users className="w-4 h-4 mr-1" />
-                  <span>{trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0} going</span>
-                </div>
+                <AvatarStack
+                  avatars={trip.rsvps?.filter((rsvp: any) => rsvp.status === 'going').map((rsvp: any) => {
+                    const member = members.find(m => m.id === rsvp.member_id)
+                    return {
+                      id: rsvp.member_id,
+                      name: member?.name || 'Unknown',
+                      color: member?.color || '#F6A08B'
+                    }
+                  }) || []}
+                  maxVisible={3}
+                />
               </div>
             ))}
           </div>
