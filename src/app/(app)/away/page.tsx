@@ -188,8 +188,8 @@ export default function AwayPage() {
   }, [timeAwayEntries, groupedEntries])
 
   if (loading) {
-    return (
-      <div className="max-w-md mx-auto px-4 py-6">
+  return (
+    <div className="max-w-md mx-auto px-4 py-6">
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -209,8 +209,8 @@ export default function AwayPage() {
             <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
                 <SheetTrigger asChild>
                   <button className="bg-accent text-white p-3 rounded-full hover:bg-accent transition-colors opacity-80 hover:opacity-100">
-                    <Plus className="w-5 h-5" />
-                  </button>
+          <Plus className="w-5 h-5" />
+        </button>
                 </SheetTrigger>
               <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">

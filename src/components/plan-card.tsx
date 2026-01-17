@@ -62,63 +62,66 @@ export function PlanCard({
       onClick={onCardClick}
       className="card-revolut card-revolut-hover cursor-pointer active:scale-[0.98] p-4 mb-3"
     >
-      <div className="flex items-start">
-        {/* Calendar Badge - Keep existing feature */}
-        <div className="w-14 h-14 rounded-xl border-2 border-accent flex flex-col mr-4 flex-shrink-0">
-          <div className="bg-accent rounded-t-lg flex-1 flex items-center justify-center">
-            <span className="text-white text-xs font-semibold">
-              {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
-            </span>
-          </div>
-          <div className="bg-card rounded-b-lg flex-1 flex items-center justify-center">
-            <span className="text-gray-900 text-lg font-bold">
-              {date.getDate()}
-            </span>
-          </div>
-        </div>
-
-        {/* Content Block */}
-        <div className="flex-1 min-w-0 mr-3">
-          {/* Title */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
-            {title}
-          </h3>
-
-          {/* Date and time */}
-          <p className="text-sm text-gray-600 mb-2">
-            {formatDate(date)}, {formatTimeRange(date, endDate)}
-          </p>
-
-          {/* Location */}
-          {location && (
-            <div className="flex items-center text-sm text-gray-600 mb-3">
-              <MapPin className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-              <span className="truncate">{location}</span>
+      {/* Top row: badge + details + edit */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          {/* Calendar Badge - Keep existing feature */}
+          <div className="w-14 h-14 rounded-2xl border border-border flex flex-col flex-shrink-0 overflow-hidden">
+            <div className="bg-accent flex-1 flex items-center justify-center">
+              <span className="text-white text-[11px] font-semibold tracking-wide">
+                {date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+              </span>
             </div>
-          )}
+            <div className="bg-card flex-1 flex items-center justify-center">
+              <span className="text-gray-900 text-lg font-bold leading-none">
+                {date.getDate()}
+              </span>
+            </div>
+          </div>
 
-          {/* Attendees */}
-          <AvatarStack avatars={attendees} />
+          {/* Content Block */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[17px] font-semibold text-gray-900 leading-snug truncate">
+              {title}
+            </h3>
+
+            <p className="text-sm text-gray-600 mt-0.5 leading-snug">
+              {formatDate(date)}, {formatTimeRange(date, endDate)}
+            </p>
+
+            {!!location?.trim() && (
+              <div className="flex items-center text-sm text-gray-600 mt-1.5">
+                <MapPin className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
+                <span className="truncate">{location.trim()}</span>
+              </div>
+            )}
+
+            <div className="mt-2">
+              <AvatarStack avatars={attendees} />
+            </div>
+          </div>
         </div>
 
-        {/* RSVP Buttons */}
-        {children && (
-          <div className="mt-3 pt-3 border-t border-border">
-            {children}
-          </div>
+        {onEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit()
+            }}
+            className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+            aria-label="Edit"
+          >
+            <Pencil className="w-4 h-4 text-gray-600" />
+          </button>
         )}
-
-        {/* Edit button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onEdit?.()
-          }}
-          className="w-9 h-9 bg-border hover:bg-muted rounded-full flex items-center justify-center transition-colors flex-shrink-0 self-start"
-        >
-          <Pencil className="w-4 h-4 text-secondary" />
-        </button>
       </div>
+
+      {/* Bottom row: RSVP buttons full width */}
+      {children && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          {children}
+        </div>
+      )}
     </div>
   )
 }

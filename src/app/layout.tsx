@@ -50,7 +50,7 @@ export default function RootLayout({
           <DataProvider>
             <UserSelector />
             <div className="min-h-screen pb-20">
-              {children}
+        {children}
             </div>
             <BottomNav />
           </DataProvider>

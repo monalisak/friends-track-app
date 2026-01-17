@@ -21,7 +21,7 @@ export function LayoutShell({
 }: LayoutShellProps) {
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-md mx-auto px-4 py-6 pb-24">
+      <main className="max-w-md mx-auto px-4 py-6 pb-32">
         {children}
       </main>
       <FloatingActionButton onClick={onFabClick} />
