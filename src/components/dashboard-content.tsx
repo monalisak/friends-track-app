@@ -32,74 +32,150 @@ export function DashboardContent() {
   const handleMeetupRsvp = async (meetupId: string, status: 'going' | 'maybe' | 'cant' | null) => {
     if (!currentUser) return
 
+    console.log('Updating meetup RSVP:', meetupId, status)
+
+    // Optimistically update local state first
+    setMeetups(prevMeetups =>
+      prevMeetups.map(meetup => {
+        if (meetup.id === meetupId) {
+          let updatedRsvps = [...(meetup.rsvps || [])]
+
+          if (status === null) {
+            // Remove user's RSVP
+            updatedRsvps = updatedRsvps.filter(rsvp => rsvp.member_id !== currentUser.id)
+          } else {
+            // Update or add user's RSVP
+            const existingIndex = updatedRsvps.findIndex(rsvp => rsvp.member_id === currentUser.id)
+            if (existingIndex >= 0) {
+              updatedRsvps[existingIndex] = { member_id: currentUser.id, status }
+            } else {
+              updatedRsvps.push({ member_id: currentUser.id, status })
+            }
+          }
+
+          return { ...meetup, rsvps: updatedRsvps }
+        }
+        return meetup
+      })
+    )
+
     try {
       let error = null
 
       if (status === null) {
         // Clear RSVP
+        console.log('Deleting RSVP for meetup:', meetupId)
         const result = await supabase
           .from('rsvps')
           .delete()
           .eq('meetup_id', meetupId)
           .eq('member_id', currentUser.id)
         error = result.error
+        console.log('Delete result:', result)
       } else {
-        // Update RSVP
+        // Update RSVP - use explicit onConflict
+        console.log('Upserting RSVP for meetup:', meetupId, status)
         const result = await supabase
           .from('rsvps')
           .upsert({
             meetup_id: meetupId,
             member_id: currentUser.id,
             status,
+          }, {
+            onConflict: 'meetup_id,member_id'
           })
         error = result.error
+        console.log('Upsert result:', result)
       }
 
       if (error) {
         console.error('Error updating meetup RSVP:', error)
-      } else {
-        // Refresh data
+        // Revert optimistic update on error
         fetchDashboardData()
+      } else {
+        console.log('Meetup RSVP updated successfully')
+        // Real-time will handle updates, but also refresh to ensure consistency
+        setTimeout(() => fetchDashboardData(), 1000)
       }
     } catch (error) {
-      console.error('Error updating meetup RSVP:', error)
+      console.error('Exception updating meetup RSVP:', error)
+      // Revert optimistic update on error
+      fetchDashboardData()
     }
   }
 
   const handleTripRsvp = async (tripId: string, status: 'going' | 'maybe' | 'cant' | null) => {
     if (!currentUser) return
 
+    console.log('Updating trip RSVP:', tripId, status)
+
+    // Optimistically update local state first
+    setTrips(prevTrips =>
+      prevTrips.map(trip => {
+        if (trip.id === tripId) {
+          let updatedRsvps = [...(trip.rsvps || [])]
+
+          if (status === null) {
+            // Remove user's RSVP
+            updatedRsvps = updatedRsvps.filter(rsvp => rsvp.member_id !== currentUser.id)
+          } else {
+            // Update or add user's RSVP
+            const existingIndex = updatedRsvps.findIndex(rsvp => rsvp.member_id === currentUser.id)
+            if (existingIndex >= 0) {
+              updatedRsvps[existingIndex] = { member_id: currentUser.id, status }
+            } else {
+              updatedRsvps.push({ member_id: currentUser.id, status })
+            }
+          }
+
+          return { ...trip, rsvps: updatedRsvps }
+        }
+        return trip
+      })
+    )
+
     try {
       let error = null
 
       if (status === null) {
         // Clear RSVP
+        console.log('Deleting RSVP for trip:', tripId)
         const result = await supabase
           .from('rsvps')
           .delete()
           .eq('trip_id', tripId)
           .eq('member_id', currentUser.id)
         error = result.error
+        console.log('Delete result:', result)
       } else {
-        // Update RSVP
+        // Update RSVP - use explicit onConflict
+        console.log('Upserting RSVP for trip:', tripId, status)
         const result = await supabase
           .from('rsvps')
           .upsert({
             trip_id: tripId,
             member_id: currentUser.id,
             status,
+          }, {
+            onConflict: 'trip_id,member_id'
           })
         error = result.error
+        console.log('Upsert result:', result)
       }
 
       if (error) {
         console.error('Error updating trip RSVP:', error)
-      } else {
-        // Refresh data
+        // Revert optimistic update on error
         fetchDashboardData()
+      } else {
+        console.log('Trip RSVP updated successfully')
+        // Real-time will handle updates, but also refresh to ensure consistency
+        setTimeout(() => fetchDashboardData(), 1000)
       }
     } catch (error) {
-      console.error('Error updating trip RSVP:', error)
+      console.error('Exception updating trip RSVP:', error)
+      // Revert optimistic update on error
+      fetchDashboardData()
     }
   }
 
@@ -157,6 +233,7 @@ export function DashboardContent() {
   }
 
   const fetchDashboardData = async () => {
+    console.log('Fetching dashboard data...')
     // Check if Supabase is configured
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       setSetupRequired(true)
@@ -248,6 +325,8 @@ export function DashboardContent() {
       })
 
       // Set separate arrays for each section
+      console.log('Setting meetups data:', meetupsData?.length || 0, 'items')
+      console.log('Sample meetup RSVPs:', meetupsData?.[0]?.rsvps)
       setMeetups(meetupsData || [])
       setTrips(tripsData || [])
       setTimeAway(timeAwayData || [])
@@ -263,6 +342,7 @@ export function DashboardContent() {
       }
     } finally {
       setLoading(false)
+      console.log('Dashboard data fetch completed')
     }
   }
 
@@ -279,10 +359,14 @@ export function DashboardContent() {
 
     const rsvpsSubscription = supabase
       .channel('dashboard_rsvps')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rsvps' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rsvps' }, (payload) => {
+        console.log('RSVP change detected on dashboard:', payload)
         fetchDashboardData()
       })
-      .subscribe()
+      .subscribe((status, err) => {
+        console.log('RSVP subscription status:', status, err)
+        if (err) console.error('RSVP subscription error:', err)
+      })
 
     const tripsSubscription = supabase
       .channel('dashboard_trips')
