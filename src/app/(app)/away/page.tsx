@@ -206,23 +206,13 @@ export default function AwayPage() {
               <h1 className="text-2xl font-bold text-gray-900">Time Away</h1>
               <p className="text-gray-600 mt-1">Share when you're traveling</p>
             </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  console.log('Client-side: Manual refresh triggered')
-                  fetchTimeAway()
-                }}
-                className="bg-gray-600 text-white px-4 py-2 rounded-xl hover:bg-gray-700 transition-colors text-sm"
-              >
-                Refresh
-              </button>
-              <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
+            <Sheet open={showCreateForm} onOpenChange={setShowCreateForm}>
                 <SheetTrigger asChild>
                   <button className="bg-[#F04A23] text-white p-3 rounded-full hover:bg-[#E03F1F] transition-colors">
                     <Plus className="w-5 h-5" />
                   </button>
                 </SheetTrigger>
-          <SheetContent side="bottom" className="h-[90vh] p-0">
+              <SheetContent side="bottom" className="h-[90vh] p-0">
             <div className="p-6 pb-0">
               <SheetHeader>
                 <SheetTitle>Add Time Away</SheetTitle>
