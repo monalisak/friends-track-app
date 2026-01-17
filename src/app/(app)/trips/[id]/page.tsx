@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Calendar, MapPin, Users } from "lucide-react"
+import { ArrowLeft, Calendar, MapPin, Users, Pencil } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
-import { supabase } from "@/utils/supabase"
+import { useData } from "@/contexts/data-context"
 import { RsvpButtons } from "@/components/rsvp/rsvp-buttons"
+import { TripForm } from "@/components/forms/trip-form"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 interface Trip {
   id: string
@@ -26,75 +28,14 @@ export default function TripDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { currentUser, members } = useUser()
-  const [trip, setTrip] = useState<Trip | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { trips, loading, updateTripRsvp, updateTrip } = useData()
+  const [showEdit, setShowEdit] = useState(false)
 
-  useEffect(() => {
-    if (params.id) {
-      fetchTrip(params.id as string)
-    }
-  }, [params.id])
-
-  const fetchTrip = async (id: string) => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('trips')
-        .select(`
-          *,
-          rsvps!inner(*)
-        `)
-        .eq('id', id)
-        .single()
-
-      if (error) {
-        console.error('Error fetching trip:', error)
-      } else {
-        setTrip(data)
-      }
-    } catch (error) {
-      console.error('Exception fetching trip:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRsvpUpdate = async (status: 'going' | 'maybe' | 'cant' | null) => {
-    if (!currentUser || !trip) return
-
-    try {
-      let error = null
-
-      if (status === null) {
-        // Clear RSVP
-        const result = await supabase
-          .from('rsvps')
-          .delete()
-          .eq('trip_id', trip.id)
-          .eq('member_id', currentUser.id)
-        error = result.error
-      } else {
-        // Update RSVP
-        const result = await supabase
-          .from('rsvps')
-          .upsert({
-            trip_id: trip.id,
-            member_id: currentUser.id,
-            status,
-          })
-        error = result.error
-      }
-
-      if (error) {
-        console.error('Error updating RSVP:', error)
-      } else {
-        // Refresh the trip data
-        fetchTrip(trip.id)
-      }
-    } catch (error) {
-      console.error('Error updating RSVP:', error)
-    }
-  }
+  const trip = useMemo(() => {
+    const id = params.id as string | undefined
+    if (!id) return null
+    return (trips as any as Trip[]).find(t => t.id === id) || null
+  }, [trips, params.id])
 
   const getMemberName = (memberId: string) => {
     const member = members.find(m => m.id === memberId)
@@ -151,7 +92,8 @@ export default function TripDetailPage() {
   return (
     <div className="max-w-md mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
         <button
           onClick={() => router.back()}
           className="p-2 -ml-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -159,6 +101,14 @@ export default function TripDetailPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white ml-2">Trip Details</h1>
+        </div>
+        <button
+          onClick={() => setShowEdit(true)}
+          className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+          title="Edit trip"
+        >
+          <Pencil className="w-4 h-4 text-gray-600" />
+        </button>
       </div>
 
       {/* Trip Info */}
@@ -201,7 +151,7 @@ export default function TripDetailPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Response</h3>
           <RsvpButtons
             currentRsvp={userRsvp}
-            onRsvp={handleRsvpUpdate}
+            onRsvp={(status) => updateTripRsvp(trip.id, status)}
           />
         </div>
       )}
@@ -239,6 +189,33 @@ export default function TripDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Trip Sheet */}
+      <Sheet open={showEdit} onOpenChange={setShowEdit}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Trip</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            <TripForm
+              initialData={{
+                title: trip.title,
+                startDate: trip.start_date,
+                endDate: trip.end_date,
+                location: trip.location || '',
+                notes: trip.notes || '',
+              }}
+              onSubmit={async (data) => {
+                await updateTrip(trip.id, data)
+                setShowEdit(false)
+              }}
+              onCancel={() => setShowEdit(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

@@ -97,11 +97,32 @@ export function DashboardContent() {
   }
 
   return (
-    <LayoutShell onFabClick={() => setShowMeetupForm(true)}>
+    <LayoutShell>
       <div className="pb-4">
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Pal Cal(ender)</h1>
           <p className="text-gray-600 mt-1">Track meetups, trips, and time away</p>
+          {/* Quick add actions */}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setShowMeetupForm(true)}
+              className="h-10 rounded-xl bg-white/80 border border-gray-200 text-gray-900 text-sm font-medium hover:bg-white transition"
+            >
+              Add Meetup
+            </button>
+            <button
+              onClick={() => setShowTripForm(true)}
+              className="h-10 rounded-xl bg-white/80 border border-gray-200 text-gray-900 text-sm font-medium hover:bg-white transition"
+            >
+              Add Trip
+            </button>
+            <button
+              onClick={() => setShowTimeAwayForm(true)}
+              className="h-10 rounded-xl bg-white/80 border border-gray-200 text-gray-900 text-sm font-medium hover:bg-white transition"
+            >
+              Time Away
+            </button>
+          </div>
         </header>
 
         {/* Meetups Section */}

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Calendar, MapPin, Users, Plus, Trash2 } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Trash2, Pencil } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { useData } from "@/contexts/data-context"
 import { MeetupForm } from "@/components/forms/meetup-form"
@@ -26,9 +26,10 @@ interface Meetup {
 export default function MeetupsPage() {
   const router = useRouter()
   const { currentUser, members } = useUser()
-  const { meetups: allMeetups, loading, createMeetup, updateMeetupRsvp, deleteMeetup } = useData()
+  const { meetups: allMeetups, loading, createMeetup, updateMeetupRsvp, deleteMeetup, updateMeetup } = useData()
   const [filter, setFilter] = useState<'upcoming' | 'past'>('upcoming')
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showEditMeetup, setShowEditMeetup] = useState<Meetup | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   // Filter meetups based on the selected filter
@@ -204,6 +205,16 @@ export default function MeetupsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
+                        setShowEditMeetup(meetup)
+                      }}
+                      className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                      title="Edit meetup"
+                    >
+                      <Pencil className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
                         setDeleteConfirm(meetup.id)
                       }}
                       className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
@@ -229,6 +240,34 @@ export default function MeetupsPage() {
           })
         )}
       </div>
+
+      {/* Edit Meetup Sheet */}
+      <Sheet open={!!showEditMeetup} onOpenChange={(open) => !open && setShowEditMeetup(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Meetup</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditMeetup && (
+              <MeetupForm
+                initialData={{
+                  title: showEditMeetup.title,
+                  dateTime: showEditMeetup.date_time,
+                  location: showEditMeetup.location || '',
+                  notes: showEditMeetup.notes || '',
+                }}
+                onSubmit={async (data) => {
+                  await updateMeetup(showEditMeetup.id, data)
+                  setShowEditMeetup(null)
+                }}
+                onCancel={() => setShowEditMeetup(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (

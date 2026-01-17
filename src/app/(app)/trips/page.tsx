@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Plane, Plus, Users, Trash2 } from "lucide-react"
+import { Plane, Plus, Users, Trash2, Pencil } from "lucide-react"
 import { useUser } from "@/contexts/user-context"
 import { useData } from "@/contexts/data-context"
 import { TripForm } from "@/components/forms/trip-form"
@@ -27,12 +27,19 @@ interface Trip {
 export default function TripsPage() {
   const router = useRouter()
   const { currentUser, members } = useUser()
-  const { trips: allTrips, loading, createTrip, updateTripRsvp, deleteTrip } = useData()
+  const { trips: allTrips, loading, createTrip, updateTripRsvp, deleteTrip, updateTrip } = useData()
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showEditTrip, setShowEditTrip] = useState<Trip | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
-  // Filter trips (all trips are shown on this page, no filtering needed)
-  const trips = useMemo(() => allTrips, [allTrips])
+  // Trips list (chronological)
+  const trips = useMemo(
+    () =>
+      [...(allTrips as any as Trip[])].sort(
+        (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+      ),
+    [allTrips]
+  )
 
 
   const getUserRsvp = (trip: Trip) => {
@@ -166,7 +173,20 @@ export default function TripsPage() {
                       Created by {getMemberName(trip.created_by)}
             </div>
                     <button
-                      onClick={() => setDeleteConfirm(trip.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowEditTrip(trip)
+                      }}
+                      className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                      title="Edit trip"
+                    >
+                      <Pencil className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDeleteConfirm(trip.id)
+                      }}
                       className="text-red-500 hover:text-red-700 p-1 rounded"
                       title="Delete trip"
                     >
@@ -185,6 +205,35 @@ export default function TripsPage() {
           })
         )}
           </div>
+
+      {/* Edit Trip Sheet */}
+      <Sheet open={!!showEditTrip} onOpenChange={(open) => !open && setShowEditTrip(null)}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <div className="p-6 pb-0">
+            <SheetHeader>
+              <SheetTitle>Edit Trip</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            {showEditTrip && (
+              <TripForm
+                initialData={{
+                  title: showEditTrip.title,
+                  startDate: showEditTrip.start_date,
+                  endDate: showEditTrip.end_date,
+                  location: showEditTrip.location || '',
+                  notes: showEditTrip.notes || '',
+                }}
+                onSubmit={async (data) => {
+                  await updateTrip(showEditTrip.id, data)
+                  setShowEditTrip(null)
+                }}
+                onCancel={() => setShowEditTrip(null)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (
