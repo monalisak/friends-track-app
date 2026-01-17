@@ -53,24 +53,27 @@ export function RsvpButtons({ currentRsvp, onRsvp }: RsvpButtonsProps) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {rsvpOptions.map(({ status, label, icon: Icon, color, selectedColor }) => (
+    <div className="grid grid-cols-10 gap-2">
+      {rsvpOptions.map(({ status, label, icon: Icon }) => {
+        const isClear = status === null
+        const colSpan = isClear ? "col-span-1" : "col-span-3"
+        return (
         <button
           key={status || 'clear'}
           onClick={(e) => {
             e.stopPropagation() // Prevent card click navigation
             handleRsvp(status)
           }}
-          className={`flex items-center justify-center px-3 py-2 rounded-full text-sm font-medium transition-all duration-150 active:scale-95 ${
+          className={`${colSpan} flex items-center justify-center px-3 py-2 rounded-full text-sm font-medium transition-all duration-150 active:scale-95 ${
             selectedStatus === status
               ? 'bg-accent text-white shadow-sm'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          <Icon className="w-3.5 h-3.5 mr-1.5" />
-          {label}
+          <Icon className={`w-3.5 h-3.5 ${isClear ? "" : "mr-1.5"}`} />
+          {!isClear && label}
         </button>
-      ))}
+      )})}
     </div>
   )
 }
